@@ -1,0 +1,128 @@
+<html>
+<body>
+<pre>
+<h1>µVision Build Log</h1>
+<h2>Tool Versions:</h2>
+IDE-Version: µVision V5.16.0.0
+Copyright (C) 2015 ARM Ltd and ARM Germany GmbH. All rights reserved.
+License Information: op opkpok, pokop, LIC=BUUPC-7RHLE-00GN9-4LINC-SH4E5-KN8TC
+ 
+Tool Versions:
+Toolchain:       MDK-ARM Standard  Version: 5.16.0.0
+Toolchain Path:  C:\Keil_v5\ARM\ARMCC\Bin
+C Compiler:      Armcc.exe V5.06 (build 20)
+Assembler:       Armasm.exe V5.06 (build 20)
+Linker/Locator:  ArmLink.exe V5.06 (build 20)
+Library Manager: ArmAr.exe V5.06 (build 20)
+Hex Converter:   FromElf.exe V5.06 (build 20)
+CPU DLL:         SARMCM3.DLL V5.16.0.0
+Dialog DLL:      DARMCM1.DLL V1.12.0.0
+Target DLL:      CMSIS_AGDI.dll V1.21.20.0
+Dialog DLL:      TARMCM1.DLL V1.9.0.0
+ 
+<h2>Project:</h2>
+C:\Users\lukapenger\Desktop\evcc-type2-controller-lpc82x\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.uvprojx
+Project File Date:  09/27/2015
+
+<h2>Output:</h2>
+*** Using Compiler 'V5.06 (build 20)', folder: 'C:\Keil_v5\ARM\ARMCC\Bin'
+Rebuild target 'LPC824 Flash'
+compiling TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c...
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c(81): warning:  #177-D: variable "i" was declared but never referenced
+        int i = 0;
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c(133): warning:  #177-D: variable "evUartModuleAddressString" was declared but never referenced
+        char *evUartModuleAddressString, *evUartFunctionString, *evUartValueString;
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c(133): warning:  #177-D: variable "evUartFunctionString" was declared but never referenced
+        char *evUartModuleAddressString, *evUartFunctionString, *evUartValueString;
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c(133): warning:  #177-D: variable "evUartValueString" was declared but never referenced
+        char *evUartModuleAddressString, *evUartFunctionString, *evUartValueString;
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c(134): warning:  #177-D: variable "evUartModuleAddressSpaceIndex" was declared but never referenced
+        int evUartModuleAddressSpaceIndex = 0, evUartFunctionSpaceIndex = 0;
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c(134): warning:  #177-D: variable "evUartFunctionSpaceIndex" was declared but never referenced
+        int evUartModuleAddressSpaceIndex = 0, evUartFunctionSpaceIndex = 0;
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c(135): warning:  #177-D: variable "evUartModuleAddressNumber" was declared but never referenced
+        int evUartModuleAddressNumber = 0, evUartFunctionNumber = 0, evUartValueNumber = 0;
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c(135): warning:  #177-D: variable "evUartFunctionNumber" was declared but never referenced
+        int evUartModuleAddressNumber = 0, evUartFunctionNumber = 0, evUartValueNumber = 0;
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c(135): warning:  #177-D: variable "evUartValueNumber" was declared but never referenced
+        int evUartModuleAddressNumber = 0, evUartFunctionNumber = 0, evUartValueNumber = 0;
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c(136): warning:  #177-D: variable "evUartShowCommandError" was declared but never referenced
+        bool evUartShowCommandError = false;
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c(137): warning:  #177-D: variable "sysTickAdcSampleValue" was declared but never referenced
+        int sysTickAdcSampleValue = 0, sysTickStateMachineValue = 0;
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c(137): warning:  #177-D: variable "sysTickStateMachineValue" was declared but never referenced
+        int sysTickAdcSampleValue = 0, sysTickStateMachineValue = 0;
+Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c: 12 warnings, 0 errors
+compiling EV_UART.c...
+compiling EV_MOTOR.c...
+compiling EV_PWM.c...
+compiling SETTINGS.c...
+compiling EV_ADC.c...
+compiling EV_STATE_MACHINE.c...
+compiling CLOCK_LPC82x.c...
+compiling GPIO_LPC82x.c...
+compiling SYSCON_LPC82x.c...
+compiling UART_LPC82x.c...
+compiling SWM_LPC82x.c...
+compiling IAP_LPC82x.c...
+compiling SCT_LPC82x.c...
+compiling ADC_LPC82x.c...
+compiling RTX_Conf_CM.c...
+assembling startup_LPC82x.s...
+compiling system_LPC82x.c...
+linking...
+Program Size: Code=12560 RO-data=560 RW-data=116 ZI-data=5556  
+FromELF: creating hex file...
+".\Objects\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.axf" - 0 Error(s), 12 Warning(s).
+
+<h2>Software Packages used:</h2>
+
+Package Vendor: ARM
+                http://www.keil.com/pack/ARM.CMSIS.4.3.0.pack
+                ::CMSIS:RTOS:1.0 (API)
+                CMSIS (Cortex Microcontroller Software Interface Standard)
+   * Component: RTOS Version: 1.0
+   * Component: CORE Version: 4.1.0
+   * Component: Keil RTX Version: 4.78.0
+
+Package Vendor: Keil
+                http://www.keil.com/pack/Keil.LPC800_DFP.1.2.0.pack
+                Keil::Device:Startup:1.0.0
+                NXP LPC800 Series Device Support
+   * Component: Startup Version: 1.0.0
+
+<h2>Collection of Component include folders:</h2>
+  C:\Users\lukapenger\Desktop\evcc-type2-controller-lpc82x\RTE
+  C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\Include
+  C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\RTOS\RTX\INC
+  C:\Keil_v5\ARM\PACK\Keil\LPC800_DFP\1.2.0\Device\Include
+
+<h2>Collection of Component Files used:</h2>
+
+   * Component: ::CMSIS:RTOS:1.0 (API)
+
+   * Component: ARM::CMSIS:CORE:4.1.0
+
+   * Component: ARM::CMSIS:RTOS:Keil RTX:4.78.0
+      Include file:  CMSIS\RTOS\RTX\INC\cmsis_os.h
+      Source file:   CMSIS\RTOS\RTX\Templates\RTX_Conf_CM.c
+      Include file:  CMSIS\RTOS\RTX\UserCodeTemplates\osObjects.h
+      Source file:   CMSIS\RTOS\RTX\UserCodeTemplates\main.c
+      Source file:   CMSIS\RTOS\RTX\UserCodeTemplates\MailQueue.c
+      Source file:   CMSIS\RTOS\RTX\UserCodeTemplates\MemPool.c
+      Source file:   CMSIS\RTOS\RTX\UserCodeTemplates\MsgQueue.c
+      Source file:   CMSIS\RTOS\RTX\UserCodeTemplates\Mutex.c
+      Source file:   CMSIS\RTOS\RTX\UserCodeTemplates\Semaphore.c
+      Source file:   CMSIS\RTOS\RTX\UserCodeTemplates\Thread.c
+      Source file:   CMSIS\RTOS\RTX\UserCodeTemplates\Timer.c
+      Source file:   CMSIS\RTOS\RTX\SRC\ARM\SVC_Table.s
+      Library file:  CMSIS\RTOS\RTX\LIB\ARM\RTX_CM0.lib
+
+   * Component: Keil::Device:Startup:1.0.0
+      Include file:  Device\Include\LPC82x.h
+      Source file:   Device\Source\ARM\startup_LPC82x.s
+      Source file:   Device\Source\system_LPC82x.c
+Build Time Elapsed:  00:00:03
+</pre>
+</body>
+</html>

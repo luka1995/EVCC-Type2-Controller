@@ -1,0 +1,15 @@
+.\objects\pwm.o: Sources\PWM.c
+.\objects\pwm.o: Sources\PWM.h
+.\objects\pwm.o: .\Library\SWM_LPC82x.h
+.\objects\pwm.o: C:\Keil_v5\ARM\PACK\Keil\LPC800_DFP\1.2.0\Device\Include\LPC82x.h
+.\objects\pwm.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\Include\core_cm0plus.h
+.\objects\pwm.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
+.\objects\pwm.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\Include\core_cmInstr.h
+.\objects\pwm.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\Include\core_cmFunc.h
+.\objects\pwm.o: C:\Keil_v5\ARM\PACK\Keil\LPC800_DFP\1.2.0\Device\Include\system_LPC82x.h
+.\objects\pwm.o: .\Library\CLOCK_LPC82x.h
+.\objects\pwm.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\pwm.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\pwm.o: .\Library\SYSCON_LPC82x.h
+.\objects\pwm.o: .\Library\lpc_types.h
+.\objects\pwm.o: .\Library\SCT_LPC82x.h

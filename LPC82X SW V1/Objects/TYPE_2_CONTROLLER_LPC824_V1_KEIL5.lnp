@@ -1,0 +1,24 @@
+--cpu Cortex-M0+
+".\objects\type_2_controller_lpc824_v1_keil5.o"
+".\objects\ev_uart.o"
+".\objects\ev_motor.o"
+".\objects\ev_pwm.o"
+".\objects\settings.o"
+".\objects\ev_adc.o"
+".\objects\ev_state_machine.o"
+".\objects\clock_lpc82x.o"
+".\objects\gpio_lpc82x.o"
+".\objects\syscon_lpc82x.o"
+".\objects\uart_lpc82x.o"
+".\objects\swm_lpc82x.o"
+".\objects\iap_lpc82x.o"
+".\objects\sct_lpc82x.o"
+".\objects\adc_lpc82x.o"
+"C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\RTOS\RTX\LIB\ARM\RTX_CM0.lib"
+".\objects\rtx_conf_cm.o"
+".\objects\startup_lpc82x.o"
+".\objects\system_lpc82x.o"
+--strict --scatter ".\Objects\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.sct"
+--summary_stderr --info summarysizes --map --xref --callgraph --symbols
+--info sizes --info totals --info unused --info veneers
+--list ".\Listings\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.map" -o .\Objects\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.axf
