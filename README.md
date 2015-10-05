@@ -6,5 +6,5 @@ Avant Car d.o.o.
 
 ## Documentations
 
-Connector type 2: SAE J1772
+Connector type 2: SAE J1772</br>
 Type 2 standard: IEC 62196
