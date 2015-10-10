@@ -1,7 +1,0 @@
--c --cpu Cortex-M0+ -D__RTX -g -O3 --apcs=interwork --split_sections -I.\Library -I.\Library\lpc_core -I.\Library\lpc_core\lpc_chip -I.\Library\lpc_core\lpc_chip\chip_8xx -I.\Library\lpc_core\lpc_chip\chip_common -I.\Library\lpc_core\lpc_chip\chip_8xx\config_82x -I.\Library\lpc_core\lpc_board -I.\Library\lpc_core\lpc_board\board_common -I.\Library\lpc_core\lpc_board\boards_8xx\nxp_lpcxpresso_824
--I C:\Users\lukapenger\Desktop\evcc-type2-controller-lpc82x\RTE
--I C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\Include
--I C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\RTOS\RTX\INC
--I C:\Keil_v5\ARM\PACK\Keil\LPC800_DFP\1.2.0\Device\Include
--D__UVISION_VERSION="516" -D_RTE_ -DLPC824M201JHI33 -DCORE_M0PLUS
--o .\objects\ev_pwm.o --omf_browse .\objects\ev_pwm.crf --depend .\objects\ev_pwm.d "Sources\EV_PWM.c"

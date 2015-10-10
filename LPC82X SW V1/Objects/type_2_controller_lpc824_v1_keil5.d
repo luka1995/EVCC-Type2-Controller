@@ -18,7 +18,6 @@
 .\objects\type_2_controller_lpc824_v1_keil5.o: .\Library\lpc_types.h
 .\objects\type_2_controller_lpc824_v1_keil5.o: .\Library\IAP_LPC82x.h
 .\objects\type_2_controller_lpc824_v1_keil5.o: Sources\SETTINGS.h
-.\objects\type_2_controller_lpc824_v1_keil5.o: Sources\EV_MOTOR.h
 .\objects\type_2_controller_lpc824_v1_keil5.o: Sources\EV_UART.h
 .\objects\type_2_controller_lpc824_v1_keil5.o: .\Library\UART_LPC82x.h
 .\objects\type_2_controller_lpc824_v1_keil5.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
@@ -27,3 +26,6 @@
 .\objects\type_2_controller_lpc824_v1_keil5.o: Sources\EV_ADC.h
 .\objects\type_2_controller_lpc824_v1_keil5.o: .\Library\SWM_LPC82x.h
 .\objects\type_2_controller_lpc824_v1_keil5.o: Sources\EV_STATE_MACHINE.h
+.\objects\type_2_controller_lpc824_v1_keil5.o: Sources\EV_OUTPUTS.h
+.\objects\type_2_controller_lpc824_v1_keil5.o: Sources\EV_INPUTS.h
+.\objects\type_2_controller_lpc824_v1_keil5.o: Sources\HELP.h

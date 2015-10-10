@@ -14,8 +14,6 @@
 #define ADC_VREFP											ADC_VCC			
 #define ADC_VREFN											0.0
 
-#define ADC_AVG_SAMPLE_COUNT					5
-
 void EV_ADC_Init(void);
 void EV_ADC_ReadCPVoltage(void);
 void EV_ADC_ClearCalculationValues(void);

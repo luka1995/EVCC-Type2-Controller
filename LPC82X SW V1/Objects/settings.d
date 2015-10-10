@@ -3,3 +3,13 @@
 .\objects\settings.o: .\Library\lpc_types.h
 .\objects\settings.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdint.h
 .\objects\settings.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdbool.h
+.\objects\settings.o: .\Library\IAP_LPC82x.h
+.\objects\settings.o: C:\Keil_v5\ARM\PACK\Keil\LPC800_DFP\1.2.0\Device\Include\LPC82x.h
+.\objects\settings.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\Include\core_cm0plus.h
+.\objects\settings.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\Include\core_cmInstr.h
+.\objects\settings.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\Include\core_cmFunc.h
+.\objects\settings.o: C:\Keil_v5\ARM\PACK\Keil\LPC800_DFP\1.2.0\Device\Include\system_LPC82x.h
+.\objects\settings.o: .\Library\FMC_LPC82x.h
+.\objects\settings.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
+.\objects\settings.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\settings.o: Sources\EV_PWM.h

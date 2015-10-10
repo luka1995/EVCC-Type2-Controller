@@ -4,107 +4,155 @@
 ****************************************************************************/
 
 #include "EV_STATE_MACHINE.h"
-#include "EV_UART.h"
+#include "cmsis_os.h"
+
+EvModuleMode selectedModuleMode = kEvModuleModeAuto;
 
 extern float pilotPositiveVoltage; // 0.0V - 12.0V
 extern float pilotNegativeVoltage; // 0.0V - -12.0V
 
 void (*currentStateMachine)(void) = EV_State_A1;
 
-
-
-extern void EV_UART_SendStringFormat(char *format, ...);
-extern void delayMs(unsigned int ms);
+extern bool pwmRunning;
+extern float evPwmDutyCycle;
 
 void EV_State_Machine(void) {
-	if (currentStateMachine == EV_State_A1) {
-		EV_UART_SendStringFormat("State: A1\n");
-		
-		if (pilotPositiveVoltage < EV_STATE_B_THRES_HIGH && pilotPositiveVoltage > EV_STATE_B_THRES_LOW) {
-			EV_State_B1();
-		} else if (pilotPositiveVoltage < EV_STATE_C_THRES_HIGH && pilotPositiveVoltage > EV_STATE_C_THRES_LOW) {
-			EV_State_C1();
-		}
-	} else if (currentStateMachine == EV_State_A2) {
-		EV_UART_SendStringFormat("State: A2\n");
-	} else if (currentStateMachine == EV_State_B1) {
-		EV_UART_SendStringFormat("State: B1\n");
-		
+	if (selectedModuleMode == kEvModuleModeAuto) {
 		if (pilotPositiveVoltage < EV_STATE_A_THRES_HIGH && pilotPositiveVoltage > EV_STATE_A_THRES_LOW) {
-			EV_State_A1();
-		}
-	} else if (currentStateMachine == EV_State_B2) {
-		EV_UART_SendStringFormat("State: B2\n");
-		
-		if (pilotPositiveVoltage < EV_STATE_A_THRES_HIGH && pilotPositiveVoltage > EV_STATE_A_THRES_LOW) {
-			EV_State_A2();
+			if (currentStateMachine != EV_State_A1) {
+				EV_State_A1();
+			}
+		} else if (pilotPositiveVoltage < EV_STATE_B_THRES_HIGH && pilotPositiveVoltage > EV_STATE_B_THRES_LOW) {
+			if (currentStateMachine != EV_State_B1) {
+				EV_State_B1();
+			}
 		} else if (pilotPositiveVoltage < EV_STATE_C_THRES_HIGH && pilotPositiveVoltage > EV_STATE_C_THRES_LOW) {
-			EV_State_C2();
+			if (currentStateMachine != EV_State_C2) {
+				EV_State_C2();
+			}
+		} else if (pilotPositiveVoltage < EV_STATE_D_THRES_HIGH && pilotPositiveVoltage > EV_STATE_D_THRES_LOW) {
+			if (currentStateMachine != EV_State_D2) {
+				EV_State_D2();
+			}
 		}
-	} else if (currentStateMachine == EV_State_C1) {
-		EV_UART_SendStringFormat("State: C1\n");
-	} else if (currentStateMachine == EV_State_C2) {
-		EV_UART_SendStringFormat("State: C2\n");
-	} else if (currentStateMachine == EV_State_D1) {
-		EV_UART_SendStringFormat("State: D1\n");
-	} else if (currentStateMachine == EV_State_D2) {
-		EV_UART_SendStringFormat("State: D2\n");
+	} else {
+		
+		
 	}
 	
-	/*if (pilotNegativeVoltage < EV_GROUND_THRED_HIGH || pilotNegativeVoltage < EV_GROUND_THRED_LOW) {
-		EV_GroundError();
-	}*/
+	if (pwmRunning && pilotNegativeVoltage < EV_STATE_F_THRES_HIGH && pilotNegativeVoltage < EV_STATE_F_THRES_LOW) {
+		if (currentStateMachine != EV_State_F) EV_State_F();
+	} else if (pilotPositiveVoltage >= EV_STATE_E_THRES_LOW && pilotPositiveVoltage < EV_STATE_E_THRES_HIGH) {
+		if (currentStateMachine != EV_State_E) EV_State_E();
+	}
 }
 
 // States
 
 void EV_State_A1(void) {
 	currentStateMachine = EV_State_A1;
+
+	if (pwmRunning) EV_PWM_Stop();
 	
-	// Close all outputs !
+	EV_OUTPUTS_SetPower(false);
+	EV_OUTPUTS_SetVentilation(false);
+	EV_OUTPUTS_SetShut(false);
 }
 
 void EV_State_A2(void) {
 	currentStateMachine = EV_State_A2;
 	
-	EV_PWM_Stop();
-	
-	delayMs(100);
-	
-	EV_State_A1();
+	if (!pwmRunning) EV_PWM_Start();
 }
 
 void EV_State_B1(void) {
 	currentStateMachine = EV_State_B1;
 	
+	if (pwmRunning) EV_PWM_Stop();
+	
+	EV_OUTPUTS_SetPower(false);
+	EV_OUTPUTS_SetVentilation(false);
+	EV_OUTPUTS_SetShut(true);
 }
 
 void EV_State_B2(void) {
 	currentStateMachine = EV_State_B2;
 	
-	EV_PWM_Start();
+	if (!pwmRunning) EV_PWM_Start();
 	
-	delayMs(100);
+	EV_OUTPUTS_SetPower(false);
+	EV_OUTPUTS_SetVentilation(false);
+	EV_OUTPUTS_SetShut(true);
 }
 
 void EV_State_C1(void) {
 	currentStateMachine = EV_State_C1;
+	
+	if (pwmRunning) EV_PWM_Stop();
+	
+	EV_OUTPUTS_SetPower(false);
+	EV_OUTPUTS_SetVentilation(false);
+	EV_OUTPUTS_SetShut(true);
 }
 
 void EV_State_C2(void) {
 	currentStateMachine = EV_State_C2;
+	
+	if (!pwmRunning) EV_PWM_Start();
+	
+	EV_OUTPUTS_SetPower(true);
+	EV_OUTPUTS_SetVentilation(false);
+	EV_OUTPUTS_SetShut(true);
 }
 
 void EV_State_D1(void) {
 	currentStateMachine = EV_State_D1;
+	
+	if (pwmRunning) EV_PWM_Stop();
+	
+	EV_OUTPUTS_SetPower(false);
+	EV_OUTPUTS_SetVentilation(true);
+	EV_OUTPUTS_SetShut(true);
 }
 
 void EV_State_D2(void) {
 	currentStateMachine = EV_State_D2;
+	
+	if (!pwmRunning) EV_PWM_Start();
+	
+	EV_OUTPUTS_SetPower(true);
+	EV_OUTPUTS_SetVentilation(true);
+	EV_OUTPUTS_SetShut(true);
 }
 
-void EV_GroundError(void) {
-	EV_UART_SendString("GROUND ERROR\n");
+void EV_State_E(void) {
+	currentStateMachine = EV_State_E;
+	
+	if (pwmRunning) EV_PWM_Stop();
+	
+	EV_OUTPUTS_SetPower(false);
+	EV_OUTPUTS_SetVentilation(false);
+	EV_OUTPUTS_SetShut(false);
+}
+
+void EV_State_F(void) {
+	currentStateMachine = EV_State_F;
+	
+	if (pwmRunning) EV_PWM_Stop();
+	
+	EV_OUTPUTS_SetPower(false);
+	EV_OUTPUTS_SetVentilation(false);
+	EV_OUTPUTS_SetShut(false);
+}
+
+void EV_DisableAllOutputs(void) {
+	currentStateMachine = EV_State_A1;
+	
+	if (pwmRunning) EV_PWM_Stop();
+	
+	EV_OUTPUTS_SetPower(false);
+	EV_OUTPUTS_SetVentilation(false);
+	EV_OUTPUTS_SetShut(false);
 }
 
 /****************************************************************************

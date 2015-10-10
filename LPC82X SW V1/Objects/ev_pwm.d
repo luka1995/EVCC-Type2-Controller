@@ -13,3 +13,7 @@
 .\objects\ev_pwm.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdio.h
 .\objects\ev_pwm.o: .\Library\SYSCON_LPC82x.h
 .\objects\ev_pwm.o: .\Library\SCT_LPC82x.h
+.\objects\ev_pwm.o: Sources\EV_ADC.h
+.\objects\ev_pwm.o: .\Library\ADC_LPC82x.h
+.\objects\ev_pwm.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
+.\objects\ev_pwm.o: Sources\HELP.h

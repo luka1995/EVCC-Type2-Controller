@@ -17,11 +17,12 @@
 #include <ADC_LPC82x.h>
 #include <IAP_LPC82x.h>
 #include "SETTINGS.h"
-#include "EV_MOTOR.h"
 #include "EV_UART.h"
 #include "EV_PWM.h"
 #include "EV_ADC.h"
 #include "EV_STATE_MACHINE.h"
+#include "EV_OUTPUTS.h"
+#include "EV_INPUTS.h"
 
 /*****************************************************************************
  * Definitions
@@ -30,38 +31,36 @@
 #define FIRMWARE_VERSION												"1.0"
 
 #define DEFAULT_MODULE_ADDRESS									0
-#define MODULE_ADDRESS_MAX_NUMBER								8
+#define MODULE_ADDRESS_MAX_NUMBER								9999
 
-#define ADC_SAMPLE_INTERVAL											10 // ms
-#define STATE_MACHINE_INTERVAL									100 // ms
-
-#define LED_GREEN_PIN 													19
-#define LED_RED_PIN 														18
-
-typedef enum {
-	kEvModuleModeA, // <- PLUG AND CHARGE
-	kEvModuleModeM // <- MANUAL
-} EvModuleMode;
+#define ADC_SAMPLE_INTERVAL											50 // ms / when pwm = false
+#define STATE_MACHINE_INTERVAL									50 // ms
 
 /*****************************************************************************
  * Public variables
  ****************************************************************************/
 
-char selectedModuleAddress = 0;
-EvModuleMode selectedModuleMode = kEvModuleModeA;
+extern SETTINGS_Struct settingsData;
+
+extern EvModuleMode selectedModuleMode;
 
 extern char EV_UART_Buffer[EV_UART_BUFFER_SIZE];
 extern int EV_UART_BufferLength;
 extern bool EV_UART_DataReceived;
 
+extern float selectedMaximumCurrent;
 extern bool pwmRunning;
 extern float evPwmDutyCycle;
 
 extern bool thresholdCrossed, sequenceComplete;
 extern bool groundError;
+extern int pilotPositiveADCValue; // 0 - 4095
+extern int pilotNegativeADCValue; // 0 - 4095
 extern float pilotPositiveVoltage; // 0.0V - 12.0V
 extern float pilotNegativeVoltage; // 0.0V - -12.0V
-//extern void (*stateMachine)();
+extern bool adcVoltageMeasured;
+
+extern void (*currentStateMachine)(void);
 
 /*****************************************************************************
  * Private variables
@@ -75,14 +74,7 @@ extern float pilotNegativeVoltage; // 0.0V - -12.0V
 /*****************************************************************************
  * Public functions
  ****************************************************************************/
-unsigned int currectDelayTick = 0;
 
-void delayMs(unsigned int ms) {
-	int i = 0;
-	currectDelayTick = 0;
-	
-	while (currectDelayTick < ms);
-}
 
 /*****************************************************************************
  * Private functions
@@ -99,27 +91,25 @@ void init(void) {
 	1000 = 1ms*/
 	SysTick_Config(SystemCoreClock / 1000);
 	
-	// GPIO Init
-	
-	GPIO_Init(LPC_GPIO_PORT);
-	
-	// LED Init
-	
-	GPIO_SetPinDIROutput(LPC_GPIO_PORT, LED_GREEN_PIN); // LED Green -> Output
-	GPIO_SetPinDIROutput(LPC_GPIO_PORT, LED_RED_PIN); // LED Red -> Output
-	
-	GPIO_SetPinState(LPC_GPIO_PORT, LED_GREEN_PIN, true); // LED Green -> OFF
-	GPIO_SetPinState(LPC_GPIO_PORT, LED_RED_PIN, true); // LED Red -> OFF
-	
 	// EV Init
 	
-	EV_MOTOR_Init();
+	EV_OUTPUTS_Init();
 	
+	EV_INPUTS_Init();
+
 	EV_UART_Init();
 	
 	EV_PWM_Init();
 	
 	EV_ADC_Init();
+	
+	// Settings load
+	
+	SETTINGS_Load();
+	
+	// Default state machine
+	
+	EV_State_A1();
 }
 
 /*****************************************************************************
@@ -130,7 +120,7 @@ int main(void) {
 	//
 	// Variables
 	//
-	char *evUartModuleAddressString, *evUartFunctionString, *evUartValueString;
+	char *evUartModuleAddressString = NULL, *evUartFunctionString = NULL, *evUartValueString = NULL;
 	int evUartModuleAddressSpaceIndex = 0, evUartFunctionSpaceIndex = 0;
 	int evUartModuleAddressNumber = 0, evUartFunctionNumber = 0, evUartValueNumber = 0;
 	bool evUartShowCommandError = false;
@@ -141,15 +131,67 @@ int main(void) {
 	//
  	init();
 	
+	// Send firmware version
+	
+	EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, 2);
+	EV_UART_SendString(" V"FIRMWARE_VERSION);
+	EV_UART_SendString("\r\n");
+	
+	// Set maximum current
+	
+	selectedMaximumCurrent = settingsData.selectedIdefault;
+	EV_PWM_SetDutyCycle(selectedMaximumCurrent);
+	
 	//
 	// While
 	//
-	
 	while (1) {
+		/*****************************************************************************
+		* ADC Voltage Read
+		****************************************************************************/
+		
+		if (sequenceComplete == true) {
+			sequenceComplete = false; // Clear flag
+			
+			// Read CP Voltage
+			
+			EV_ADC_ReadCPVoltage();
+	  }
+		
+		/*****************************************************************************
+		* SysTick Value Listener
+		****************************************************************************/
+
+		if (SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) {
+			// ADC Sequencer
+			
+			if (pwmRunning == false) {
+				if (sysTickAdcSampleValue >= ADC_SAMPLE_INTERVAL) {
+					sysTickAdcSampleValue = 0; // Clear flag
+
+					ADC_StartSequencer(LPC_ADC, ADC_SEQA_IDX);
+				} else {
+					sysTickAdcSampleValue++;
+				}
+			}
+			
+			// State Machine
+			
+			if (adcVoltageMeasured && sysTickStateMachineValue >= STATE_MACHINE_INTERVAL) {
+				sysTickStateMachineValue = 0; // Clear flag
+					
+				// State machine
+			
+				EV_State_Machine();
+			} else {
+				sysTickStateMachineValue++;
+			}
+		}
+		
 		/*****************************************************************************
 		* EV UART Listener
 		****************************************************************************/
-		/*
+		
 		if (EV_UART_DataReceived == true && (UART_GetStatus(EV_UART) & UART_STAT_RXIDLE) != 0 && (UART_GetStatus(EV_UART) & UART_STAT_RXRDY) == 0) {
 			EV_UART_DataReceived = false;
 
@@ -164,10 +206,10 @@ int main(void) {
 					evUartModuleAddressNumber = atoi(evUartModuleAddressString);
 					
 					// Free pointer
-					if (evUartModuleAddressString) free(evUartModuleAddressString);
+					if (evUartModuleAddressString != NULL) { free(evUartModuleAddressString); evUartModuleAddressString = NULL; }
 					
 					// Check module address if correct
-					if (evUartModuleAddressNumber == DEFAULT_MODULE_ADDRESS || evUartModuleAddressNumber == selectedModuleAddress) {
+					if (evUartModuleAddressNumber == DEFAULT_MODULE_ADDRESS || evUartModuleAddressNumber == settingsData.selectedModuleAddress) {
 						// MODULE ADDRESS IS CORRECT
 
 						// Search FUNCTION space index
@@ -182,7 +224,7 @@ int main(void) {
 								evUartFunctionNumber = atoi(evUartFunctionString);
 								
 								// Free pointer
-								if (evUartFunctionString) free(evUartFunctionString);
+								if (evUartFunctionString != NULL) { free(evUartFunctionString); evUartFunctionString = NULL; }
 								
 								// Search VALUE
 								evUartValueString = (char *)malloc(EV_UART_BufferLength - (evUartFunctionSpaceIndex + 1));
@@ -192,47 +234,204 @@ int main(void) {
 									evUartValueNumber = atoi(evUartValueString);
 								
 									// Free pointer
-									if (evUartValueString) free(evUartValueString);
+									if (evUartValueString != NULL) { free(evUartValueString); evUartValueString = NULL; }
 	
 									// Functions
 									
 									switch (evUartFunctionNumber) {
-										case 0: { // RESET DEVICE
-											if (evUartValueNumber == 1111) {
+										case 3: { // SET ADDRESS OF DEVICE
+											if (evUartValueNumber >= 1 && evUartValueNumber >= MODULE_ADDRESS_MAX_NUMBER) {
+												settingsData.selectedModuleAddress = evUartValueNumber;
 												
-											} else {
+												SETTINGS_Save();
+												
+												EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+												EV_UART_SendString("\r\n");
+											} else { // VALUE NOT CORRECT
 												evUartShowCommandError = true;
 											}
 											break;
 										}
-										case 5: { // SET OUTPUT
-											if (selectedModuleMode == kEvModuleModeM) {
-												
-												
-											} else {
+										case 9: { // SET OUTPUT
+											switch (evUartValueNumber) {
+												case 1: {
+													EV_OUTPUTS_SetLED1(true);
+													break;
+												}
+												case 2: {
+													EV_OUTPUTS_SetLED2(true);
+													break;
+												}
+												case 4: {
+													EV_OUTPUTS_SetPower(true);
+													break;
+												}
+												case 8: {
+													EV_OUTPUTS_SetVentilation(true);
+													break;
+												}
+												case 16: {
+													EV_OUTPUTS_SetShut(true);
+													break;
+												}
+												default: {
+													evUartShowCommandError = true;
+													break;
+												}
+											}
+											break;
+										}
+										case 10: { // CLEAR OUTPUT
+											switch (evUartValueNumber) {
+												case 1: {
+													EV_OUTPUTS_SetLED1(false);
+													break;
+												}
+												case 2: {
+													EV_OUTPUTS_SetLED2(false);
+													break;
+												}
+												case 4: {
+													EV_OUTPUTS_SetPower(false);
+													break;
+												}
+												case 8: {
+													EV_OUTPUTS_SetVentilation(false);
+													break;
+												}
+												case 16: {
+													EV_OUTPUTS_SetShut(false);
+													break;
+												}
+												default: {
+													evUartShowCommandError = true;
+													break;
+												}
+											}
+											break;
+										}
+										case 16: { // SET Ic MAX
+											if (evUartValueNumber >= 0 && evUartValueNumber <= (EV_PWM_MAXIMUM_DUTY_CICLE * 10)) {
+												switch (evUartValueNumber) {
+													case 0: { // 6A
+														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_6A);
+														break;
+													}
+													case 1: { // 10A
+														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_10A);
+														break;
+													}
+													case 2: { // 13A
+														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_13A);
+														break;
+													}
+													case 3: { // 16A
+														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_16A);
+														break;
+													}
+													case 4: { // 20A
+														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_20A);
+														break;
+													}
+													case 5: { // 30A
+														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_30A);
+														break;
+													}
+													case 6: { // 40A
+														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_40A);
+														break;
+													}
+													case 7: { // 50A
+														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_50A);
+														break;
+													}
+													case 8: { // 60A
+														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_60A);
+														break;
+													}
+													case 9: { // 70A
+														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_70A);
+														break;
+													}
+													case 10: { // 80A
+														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_80A);
+														break;
+													}
+													case 11: { // Idefault
+														EV_PWM_SetDutyCycle(settingsData.selectedIdefault);
+														break;
+													}
+													default: {
+														EV_PWM_SetDutyCycle((float)((float)evUartValueNumber / 10));
+														break;
+													}
+												}
+											} else { // VALUE NOT CORRECT
 												evUartShowCommandError = true;
 											}
 											break;
 										}
-										case 6: { // CLEAR OUTPUT
-											if (selectedModuleMode == kEvModuleModeM) {
+										case 17: { // SET Idefault
+											if (evUartValueNumber >= 0 && evUartValueNumber <= (EV_PWM_MAXIMUM_DUTY_CICLE * 10)) {
+												switch (evUartValueNumber) {
+													case 0: { // 6A
+														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_6A;
+														break;
+													}
+													case 1: { // 10A
+														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_10A;
+														break;
+													}
+													case 2: { // 13A
+														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_13A;
+														break;
+													}
+													case 3: { // 16A
+														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_16A;
+														break;
+													}
+													case 4: { // 20A
+														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_20A;
+														break;
+													}
+													case 5: { // 30A
+														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_30A;
+														break;
+													}
+													case 6: { // 40A
+														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_40A;
+														break;
+													}
+													case 7: { // 50A
+														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_50A;
+														break;
+													}
+													case 8: { // 60A
+														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_60A;
+														break;
+													}
+													case 9: { // 70A
+														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_70A;
+														break;
+													}
+													case 10: { // 80A
+														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_80A;
+														break;
+													}
+													default: {
+														settingsData.selectedIdefault = (float)((float)evUartValueNumber / 10);
+														break;
+													}
+												}
 												
-												
-											} else {
+												SETTINGS_Save();
+											} else { // VALUE NOT CORRECT
 												evUartShowCommandError = true;
 											}
 											break;
 										}
-										case 12: { // SET Ic MAX
-											
-											break;
-										}
-										case 15: { // SET I DEFAULT
-											
-											break;
-										}
-										case 22: { // SET MODULE ADDRESS
-											
+										default: { // THIS FUNCTION DOESNT EXISTS
+											evUartShowCommandError = true;
 											break;
 										}
 									}
@@ -251,119 +450,169 @@ int main(void) {
 								evUartFunctionNumber = atoi(evUartFunctionString);
 								
 								// Free pointer
-								if (evUartFunctionString) free(evUartFunctionString);
+								if (evUartFunctionString != NULL) { free(evUartFunctionString); evUartFunctionString = NULL; }
 	
 								// Functions
 								
 								switch (evUartFunctionNumber) {
-									case 1: { // GET FIRMWARE VERSION
-										EV_UART_SendStringFormat("%c%01d %02d", EV_UART_SEND_CHARACTER, selectedModuleAddress, evUartFunctionNumber);
+									case 0: { // RESET DEVICE
+										NVIC_SystemReset();
+										break;
+									}
+									case 1: { // LOAD FACTORY SETTINGS AND RESET DEVICE
+										SETTINGS_LoadFactorySettings();
+
+										NVIC_SystemReset();
+										break;
+									}
+									case 2: { // GET VERSION OF FIRMWARE
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 										EV_UART_SendString(" V"FIRMWARE_VERSION);
-										EV_UART_SendString("\r\n");							
-										break;
-									}
-									case 2: { // GET MODE
-										
-										
-										break;
-									}
-									case 3: { // SWITCH MODE TO MANUAL
-										if (selectedModuleMode == kEvModuleModeA) {
-											// Change mode to M
-											selectedModuleMode = kEvModuleModeM;
-											
-											EV_UART_SendStringFormat("%c%01d %02d", EV_UART_SEND_CHARACTER, selectedModuleAddress, evUartFunctionNumber);
-											EV_UART_SendString("\r\n");
-										} else { // MODE IS ALREADY SET TO M
-											evUartShowCommandError = true;
-										}
-										break;
-									}
-									case 4: { // GET STATUS OF OUTPUT
-										break;
-									}
-									case 7: { // GET ADC VALUE OF POSITIVE Ucp
-										
-										break;
-									}
-									case 8: { // GET ADC VALUE OF NEGATIVE Ucp
-										
-										break;
-									}
-									case 9: { // GET ADC VALUE OF Ucs
-										
-										break;
-									}
-									case 10: { // GET STATUS OF INPUT
-										
-										break;
-									}
-									case 11: { // GET Ic
-										
-										break;
-									}
-									case 13: { // SWITCH PWM ON
-										if (selectedModuleMode == kEvModuleModeM) {
-											EV_ADC_ClearCalculationValues();
-											
-											EV_PWM_Start();
-											
-											EV_UART_SendStringFormat("%c%01d %02d", EV_UART_SEND_CHARACTER, selectedModuleAddress, evUartFunctionNumber);
-											EV_UART_SendString("\r\n");
-										} else {
-											evUartShowCommandError = true;
-										}
-										break;
-									}
-									case 14: { // SWITCH PWM OFF
-										if (selectedModuleMode == kEvModuleModeM) {
-											EV_ADC_ClearCalculationValues();
-											EV_PWM_Stop();
-											
-											EV_UART_SendStringFormat("%c%01d %02d", EV_UART_SEND_CHARACTER, selectedModuleAddress, evUartFunctionNumber);
-											EV_UART_SendString("\r\n");
-										} else {
-											evUartShowCommandError = true;
-										}
-										break;
-									}
-									case 23: { // GET ADDRESS OF DEVICE
-										
-										break;
-									}
-									case 25: { // STOP CHARING/LEAVE MANUAL (jump to A)
-										
-										break;
-									}
-									case 26: { // Get Idefault
-										
-										break;
-									}
-									case 27: { // Set bBreakCharge-flag
-										
-										break;
-									}
-									case 28: { // Clear bBreakCharge-flag
-										
-										break;
-									}
-									case 29: { // GET bBreakCharge-flag
-										
-										break;
-									}
-									case 30: { // JUMP TO A'
-										
-										break;
-									}
-									case 31: { // RESERT/JUMP TO OFF (enabled onlz in A')
-										
-										break;
-									}
-									case 40: { // GET DEVICE ID
-										
-										EV_UART_SendStringFormat("%c%01d %02d", EV_UART_SEND_CHARACTER, selectedModuleAddress, evUartFunctionNumber);
-										EV_UART_SendStringFormat("%d", SYSCTL_GetDeviceID());
 										EV_UART_SendString("\r\n");
+										break;
+									}
+									case 4: { // GET ADDRESS OF DEVICE
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendStringFormat(" %d", settingsData.selectedModuleAddress);
+										EV_UART_SendString("\r\n");
+									}
+									case 5: { // GET STATE MACHINE MODE
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										
+										if (currentStateMachine == EV_State_A1) {
+											EV_UART_SendStringFormat(" 0");
+										} else if (currentStateMachine == EV_State_A2) {
+											EV_UART_SendStringFormat(" 1");
+										} else if (currentStateMachine == EV_State_B1) {
+											EV_UART_SendStringFormat(" 2");
+										} else if (currentStateMachine == EV_State_B2) {
+											EV_UART_SendStringFormat(" 3");
+										} else if (currentStateMachine == EV_State_C1) {
+											EV_UART_SendStringFormat(" 4");
+										} else if (currentStateMachine == EV_State_C2) {
+											EV_UART_SendStringFormat(" 5");
+										} else if (currentStateMachine == EV_State_D1) {
+											EV_UART_SendStringFormat(" 6");
+										} else if (currentStateMachine == EV_State_D2) {
+											EV_UART_SendStringFormat(" 7");
+										} else if (currentStateMachine == EV_State_E) {
+											EV_UART_SendStringFormat(" 8");
+										} else if (currentStateMachine == EV_State_F) {
+											EV_UART_SendStringFormat(" 9");
+										}
+										
+										EV_UART_SendString("\r\n");
+										break;
+									}
+									case 6: { // SWITCH MODE TO MANUAL (Stop charging)
+										EV_DisableAllOutputs();
+										
+										selectedModuleMode = kEvModuleModeManual;
+										
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendString("\r\n");
+										break;
+									}
+									case 7: { // SWITCH MODE TO AUTO (Stop charging)
+										EV_DisableAllOutputs();
+										
+										selectedModuleMode = kEvModuleModeAuto;
+										
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendString("\r\n");
+										break;
+									}
+									case 8: { // GET STATUS OF OUTPUT
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendStringFormat(" %d", ((EV_OUTPUTS_GetStateShut() << 4) + (EV_OUTPUTS_GetStateVentilation() << 3) + (EV_OUTPUTS_GetStatePower() << 2) + (EV_OUTPUTS_GetStateLED2() << 1) + (EV_OUTPUTS_GetStateLED1() << 0)));
+										EV_UART_SendString("\r\n");
+										break;
+									}
+									case 11: { // GET STATUS OF INPUT
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendStringFormat(" %d", ((EV_INPUTS_GetStateSwitchLockDevice() << 1) + (EV_INPUTS_GetStateSwitchStartCharging() << 0)));
+										EV_UART_SendString("\r\n");
+										break;
+									}
+									case 12: { // GET ADC-value of pos. Ucp
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendStringFormat(" %d", pilotPositiveADCValue);
+										EV_UART_SendString("\r\n");
+										break;
+									}
+									case 13: { // GET ADC-value of neg. Ucp
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendStringFormat(" %d", (0xFFF - pilotNegativeADCValue));
+										EV_UART_SendString("\r\n");
+										break;
+									}
+									case 14: { // GET ADC-value of Ucs
+										break;
+									}
+									case 15: { // GET Ic - PWM duty cycle
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendStringFormat(" %d", (int)(evPwmDutyCycle * 10));
+										EV_UART_SendString("\r\n");
+										break;
+									}									
+									case 18: { // Get Idefault
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendStringFormat(" %d", (int)((float)settingsData.selectedIdefault * 10));
+										EV_UART_SendString("\r\n");
+										break;
+									}
+									case 19: { // Switch PWM on
+										if (selectedModuleMode == kEvModuleModeManual) {
+											EV_PWM_Start();
+
+											EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+											EV_UART_SendString("\r\n");
+										} else {
+											evUartShowCommandError = true;
+										}
+										break;
+									}
+									case 20: { // Switch PWM off
+										if (selectedModuleMode == kEvModuleModeManual) {
+											EV_PWM_Stop();
+
+											EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+											EV_UART_SendString("\r\n");
+										} else {
+											evUartShowCommandError = true;
+										}
+										break;
+									}
+									case 21: { // Get PWM State
+										if (pwmRunning == true) {
+											EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+											EV_UART_SendString(" 1");
+											EV_UART_SendString("\r\n");
+										} else {
+											EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+											EV_UART_SendString(" 0");
+											EV_UART_SendString("\r\n");
+										}
+										break;
+									}
+									case 22: { // Start charging
+										if (selectedModuleMode == kEvModuleModeManual) {
+											
+											
+											
+										} else {
+											evUartShowCommandError = true;
+										}
+										break;
+									}
+									case 23: { // Stop charging
+										if (selectedModuleMode == kEvModuleModeManual) {
+											
+											
+											
+										} else {
+											evUartShowCommandError = true;
+										}
 										break;
 									}
 									default: { // THIS FUNCTION DOESNT EXISTS
@@ -396,68 +645,9 @@ int main(void) {
 			evUartModuleAddressNumber = 0; evUartFunctionNumber = 0, evUartValueNumber = 0;
 			
 			// Free pointer
-			if (evUartModuleAddressString) free(evUartModuleAddressString);
-			if (evUartFunctionString) free(evUartFunctionString);
-			if (evUartValueString) free(evUartValueString);
-		}*/
-		
-		/*****************************************************************************
-		* SysTick Value Listener
-		****************************************************************************/
-
-		if (SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) {
-			// Delay ms tick
-			
-			//currectDelayTick++;
-			
-			// ADC Sequencer
-			/*
-			if (pwmRunning == false) {
-				if (sysTickAdcSampleValue >= ADC_SAMPLE_INTERVAL) {
-					sysTickAdcSampleValue = 0; // Clear flag
-					
-					ADC_StartSequencer(LPC_ADC, ADC_SEQA_IDX);
-				} else {
-					sysTickAdcSampleValue++;
-				}
-			}
-			*/
-			// State Machine
-			/*
-			if (sysTickStateMachineValue >= STATE_MACHINE_INTERVAL) {
-				sysTickStateMachineValue = 0; // Clear flag
-					
-				// State machine
-			
-				EV_State_Machine();
-			} else {
-				sysTickStateMachineValue++;
-			}*/
+			if (evUartModuleAddressString != NULL) { free(evUartModuleAddressString); evUartModuleAddressString = NULL; }
+			if (evUartFunctionString != NULL) { free(evUartFunctionString); evUartFunctionString = NULL; }
+			if (evUartValueString != NULL) { free(evUartValueString); evUartValueString = NULL; }
 		}
-
-		/*****************************************************************************
-		* ADC Voltage Read
-		****************************************************************************/
-		
-		if (sequenceComplete == true) {
-			sequenceComplete = false; // Clear flag
-			
-			// Read CP Voltage
-			
-			EV_ADC_ReadCPVoltage();
-	  }
-		
-		/*****************************************************************************
-		* Ground Error
-		****************************************************************************/
-/*
-		if (groundError == true) {
-			groundError = false;
-			
-			// DISABLE ALL OUTPUTS !!!
-			
-			
-		}*/
-
 	}
 }

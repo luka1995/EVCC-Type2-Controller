@@ -16,7 +16,9 @@
 .\objects\ev_state_machine.o: .\Library\ADC_LPC82x.h
 .\objects\ev_state_machine.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\string.h
 .\objects\ev_state_machine.o: Sources\EV_PWM.h
-.\objects\ev_state_machine.o: Sources\EV_UART.h
-.\objects\ev_state_machine.o: .\Library\UART_LPC82x.h
-.\objects\ev_state_machine.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdlib.h
-.\objects\ev_state_machine.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stdarg.h
+.\objects\ev_state_machine.o: Sources\EV_OUTPUTS.h
+.\objects\ev_state_machine.o: .\Library\GPIO_LPC82x.h
+.\objects\ev_state_machine.o: Sources\EV_INPUTS.h
+.\objects\ev_state_machine.o: Sources\HELP.h
+.\objects\ev_state_machine.o: C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\RTOS\RTX\INC\cmsis_os.h
+.\objects\ev_state_machine.o: C:\Keil_v5\ARM\ARMCC\Bin\..\include\stddef.h
