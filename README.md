@@ -13,6 +13,6 @@ Using the RS485-interface several EVCC can be connected as network with an indiv
 
 Connector type 2: SAE J1772</br>
 Type 2 standard: IEC 61851-1 Mode 3
-Serial interface: RS485, 38400Bd, 8 data bits, 1 stop bit, no parity
+Serial interface: RS485, 38400Bd, 8 data bits, 1 stop bit, no parity</br>
 -> No internal termination; use 120Ω-resistor to terminate both ends of network!
 
