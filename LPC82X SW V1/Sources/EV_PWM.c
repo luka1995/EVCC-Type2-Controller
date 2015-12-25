@@ -27,8 +27,7 @@ void EV_PWM_Init(void) {
 	
 	SWM_Init();
 	SWM_MovablePinAssign(SWM_SCT_OUT0_O, EV_PWM_POSITIVE_OUTPUT_PIN);
-	SWM_MovablePinAssign(SWM_SCT_OUT1_O, EV_PWM_NEGATIVE_OUTPUT_PIN);
-	SWM_MovablePinAssign(SWM_SCT_OUT3_O, 6);
+	//SWM_MovablePinAssign(SWM_SCT_OUT3_O, 6);
 	SWM_DeInit();
 	
 	sctClockRate = EV_PWM_GetSctClockRate();
@@ -86,7 +85,7 @@ void EV_PWM_Start(void) {
 
 void EV_PWM_Stop(void) {
 	uint32_t temp;
- 
+
 	LPC_SCT->CTRL |= (1 << 2);
 	LPC_SCT->OUTPUT = (1 << 0) | (0 << 1);
 	ADC_DisableSequencer(LPC_ADC, ADC_SEQA_IDX);

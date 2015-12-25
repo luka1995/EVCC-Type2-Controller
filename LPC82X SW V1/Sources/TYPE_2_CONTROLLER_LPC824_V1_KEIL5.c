@@ -61,6 +61,10 @@ extern float pilotNegativeVoltage; // 0.0V - -12.0V
 extern bool adcVoltageMeasured;
 
 extern void (*currentStateMachine)(void);
+extern int evStateMachineWaitMs;
+extern bool manualStartChargingFlag;
+
+int ledWaitMs = 0;
 
 /*****************************************************************************
  * Private variables
@@ -175,16 +179,58 @@ int main(void) {
 				}
 			}
 			
-			// State Machine
+			// EV State Machine
 			
 			if (adcVoltageMeasured && sysTickStateMachineValue >= STATE_MACHINE_INTERVAL) {
 				sysTickStateMachineValue = 0; // Clear flag
-					
+
 				// State machine
 			
 				EV_State_Machine();
 			} else {
 				sysTickStateMachineValue++;
+			}
+			
+			if (evStateMachineWaitMs > 0) {
+				evStateMachineWaitMs--;
+			}
+			
+			// LED States
+			
+			if (ledWaitMs == 0) {
+				if (currentStateMachine == EV_State_A1 || currentStateMachine == EV_State_A2) {
+					ledWaitMs = 1000; // Only for disable setting led no 1ms
+					
+					EV_OUTPUTS_SetLED2(false);
+					EV_OUTPUTS_SetLED1(false);
+				} else if (currentStateMachine == EV_State_B1 || currentStateMachine == EV_State_B2) {
+					ledWaitMs = 1000; // Only for disable setting led no 1ms
+					
+					EV_OUTPUTS_SetLED2(false);
+					EV_OUTPUTS_SetLED1(true);
+				} else if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_C2) {
+					ledWaitMs = 1000; // Only for disable setting led no 1ms
+					
+					EV_OUTPUTS_SetLED2(true);
+					EV_OUTPUTS_SetLED1(false);
+				} else if (currentStateMachine == EV_State_D1 || currentStateMachine == EV_State_D2) {
+					ledWaitMs = 1000;
+					
+					EV_OUTPUTS_SetLED2(true);
+					EV_OUTPUTS_SetLED1(true);
+				} else if (currentStateMachine == EV_State_E || currentStateMachine == EV_State_F) {
+					ledWaitMs = 2000;
+					
+					if (EV_OUTPUTS_GetStateLED1()) {
+						EV_OUTPUTS_SetLED2(false);
+						EV_OUTPUTS_SetLED1(false);
+					} else {
+						EV_OUTPUTS_SetLED2(true);
+						EV_OUTPUTS_SetLED1(true);
+					}
+				}
+			} else {
+				ledWaitMs--;
 			}
 		}
 		
@@ -253,7 +299,7 @@ int main(void) {
 											break;
 										}
 										case 9: { // SET OUTPUT
-											switch (evUartValueNumber) {
+											/*switch (evUartValueNumber) {
 												case 1: {
 													EV_OUTPUTS_SetLED1(true);
 													break;
@@ -278,11 +324,11 @@ int main(void) {
 													evUartShowCommandError = true;
 													break;
 												}
-											}
+											}*/
 											break;
 										}
 										case 10: { // CLEAR OUTPUT
-											switch (evUartValueNumber) {
+											/*switch (evUartValueNumber) {
 												case 1: {
 													EV_OUTPUTS_SetLED1(false);
 													break;
@@ -307,7 +353,7 @@ int main(void) {
 													evUartShowCommandError = true;
 													break;
 												}
-											}
+											}*/
 											break;
 										}
 										case 16: { // SET Ic MAX
@@ -333,8 +379,8 @@ int main(void) {
 														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_20A);
 														break;
 													}
-													case 5: { // 30A
-														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_30A);
+													case 5: { // 32A
+														EV_PWM_SetDutyCycle(EV_CURRENT_PWM_DUTY_32A);
 														break;
 													}
 													case 6: { // 40A
@@ -366,6 +412,9 @@ int main(void) {
 														break;
 													}
 												}
+												
+												EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+												EV_UART_SendString("\r\n");
 											} else { // VALUE NOT CORRECT
 												evUartShowCommandError = true;
 											}
@@ -394,8 +443,8 @@ int main(void) {
 														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_20A;
 														break;
 													}
-													case 5: { // 30A
-														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_30A;
+													case 5: { // 32A
+														settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_32A;
 														break;
 													}
 													case 6: { // 40A
@@ -425,6 +474,9 @@ int main(void) {
 												}
 												
 												SETTINGS_Save();
+												
+												EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+												EV_UART_SendString("\r\n");
 											} else { // VALUE NOT CORRECT
 												evUartShowCommandError = true;
 											}
@@ -475,6 +527,7 @@ int main(void) {
 										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 										EV_UART_SendStringFormat(" %d", settingsData.selectedModuleAddress);
 										EV_UART_SendString("\r\n");
+										break;
 									}
 									case 5: { // GET STATE MACHINE MODE
 										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
@@ -505,18 +558,26 @@ int main(void) {
 										break;
 									}
 									case 6: { // SWITCH MODE TO MANUAL (Stop charging)
-										EV_DisableAllOutputs();
-										
 										selectedModuleMode = kEvModuleModeManual;
+										
+										if (currentStateMachine == EV_State_C2) {
+											EV_State_C1();
+										} else if (currentStateMachine == EV_State_D2) {
+											EV_State_D1();
+										}
 										
 										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 										EV_UART_SendString("\r\n");
 										break;
 									}
 									case 7: { // SWITCH MODE TO AUTO (Stop charging)
-										EV_DisableAllOutputs();
-										
 										selectedModuleMode = kEvModuleModeAuto;
+										
+										if (currentStateMachine == EV_State_C2) {
+											EV_State_C1();
+										} else if (currentStateMachine == EV_State_D2) {
+											EV_State_D1();
+										}
 										
 										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 										EV_UART_SendString("\r\n");
@@ -554,7 +615,7 @@ int main(void) {
 										EV_UART_SendStringFormat(" %d", (int)(evPwmDutyCycle * 10));
 										EV_UART_SendString("\r\n");
 										break;
-									}									
+									}
 									case 18: { // Get Idefault
 										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 										EV_UART_SendStringFormat(" %d", (int)((float)settingsData.selectedIdefault * 10));
@@ -563,7 +624,7 @@ int main(void) {
 									}
 									case 19: { // Switch PWM on
 										if (selectedModuleMode == kEvModuleModeManual) {
-											EV_PWM_Start();
+											if (!pwmRunning) EV_PWM_Start();
 
 											EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 											EV_UART_SendString("\r\n");
@@ -574,7 +635,7 @@ int main(void) {
 									}
 									case 20: { // Switch PWM off
 										if (selectedModuleMode == kEvModuleModeManual) {
-											EV_PWM_Stop();
+											if (pwmRunning) EV_PWM_Stop();
 
 											EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 											EV_UART_SendString("\r\n");
@@ -597,9 +658,23 @@ int main(void) {
 									}
 									case 22: { // Start charging
 										if (selectedModuleMode == kEvModuleModeManual) {
-											
-											
-											
+											if (currentStateMachine == EV_State_B1 || currentStateMachine == EV_State_B2) {
+												manualStartChargingFlag = true;
+												
+												EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+												EV_UART_SendString("\r\n");
+											} else if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_D2) {
+												if (currentStateMachine == EV_State_C1) {
+													EV_State_C2();
+												} else if (currentStateMachine == EV_State_D1) {
+													EV_State_D2();
+												}
+												
+												EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+												EV_UART_SendString("\r\n");
+											} else {
+												evUartShowCommandError = true;
+											}
 										} else {
 											evUartShowCommandError = true;
 										}
@@ -607,9 +682,18 @@ int main(void) {
 									}
 									case 23: { // Stop charging
 										if (selectedModuleMode == kEvModuleModeManual) {
-											
-											
-											
+											if (currentStateMachine == EV_State_C2 || currentStateMachine == EV_State_D2) {
+												if (currentStateMachine == EV_State_C2) {
+													EV_State_C1();
+												} else if (currentStateMachine == EV_State_D2) {
+													EV_State_D1();
+												}
+												
+												EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+												EV_UART_SendString("\r\n");
+											} else {
+												evUartShowCommandError = true;
+											}
 										} else {
 											evUartShowCommandError = true;
 										}
@@ -637,7 +721,9 @@ int main(void) {
 			if (evUartShowCommandError == true) {
 				evUartShowCommandError = false;
 				
-				EV_UART_SendString("CMD ERROR\r\n");
+				EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+				EV_UART_SendString(" ERROR");
+				EV_UART_SendString("\r\n");
 			}
 			
 			// Set to default

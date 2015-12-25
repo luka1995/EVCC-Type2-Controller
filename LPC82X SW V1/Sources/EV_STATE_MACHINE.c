@@ -15,35 +15,75 @@ void (*currentStateMachine)(void) = EV_State_A1;
 
 extern bool pwmRunning;
 extern float evPwmDutyCycle;
+int evStateMachineWaitMs = 0;
+extern int ledWaitMs;
+bool manualStartChargingFlag = false;
 
 void EV_State_Machine(void) {
-	if (selectedModuleMode == kEvModuleModeAuto) {
-		if (pilotPositiveVoltage < EV_STATE_A_THRES_HIGH && pilotPositiveVoltage > EV_STATE_A_THRES_LOW) {
-			if (currentStateMachine != EV_State_A1) {
-				EV_State_A1();
-			}
-		} else if (pilotPositiveVoltage < EV_STATE_B_THRES_HIGH && pilotPositiveVoltage > EV_STATE_B_THRES_LOW) {
-			if (currentStateMachine != EV_State_B1) {
-				EV_State_B1();
-			}
-		} else if (pilotPositiveVoltage < EV_STATE_C_THRES_HIGH && pilotPositiveVoltage > EV_STATE_C_THRES_LOW) {
-			if (currentStateMachine != EV_State_C2) {
-				EV_State_C2();
-			}
-		} else if (pilotPositiveVoltage < EV_STATE_D_THRES_HIGH && pilotPositiveVoltage > EV_STATE_D_THRES_LOW) {
-			if (currentStateMachine != EV_State_D2) {
-				EV_State_D2();
+	if (pilotPositiveVoltage < EV_STATE_A_THRES_HIGH && pilotPositiveVoltage > EV_STATE_A_THRES_LOW) {
+		if (currentStateMachine != EV_State_A1) {
+			EV_State_A1();
+		}
+	} else if (pilotPositiveVoltage < EV_STATE_B_THRES_HIGH && pilotPositiveVoltage > EV_STATE_B_THRES_LOW) {
+		if (currentStateMachine != EV_State_B1 && currentStateMachine != EV_State_B2) {
+			EV_State_B1();
+			
+			evStateMachineWaitMs = 1000;
+		} else if (currentStateMachine == EV_State_B1) {
+			if (evStateMachineWaitMs == 0 && EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice()) {
+				if ((selectedModuleMode == kEvModuleModeManual && manualStartChargingFlag) || selectedModuleMode == kEvModuleModeAuto) {
+					EV_State_B2();
+				}
 			}
 		}
-	} else {
+	} else if (pilotPositiveVoltage < EV_STATE_C_THRES_HIGH && pilotPositiveVoltage > EV_STATE_C_THRES_LOW) {
+		if (currentStateMachine != EV_State_C1 && currentStateMachine != EV_State_C2) {
+			if (currentStateMachine == EV_State_B2) {
+				EV_State_C2();
+			} else if ((EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice())) {
+				EV_State_C2();
+			}
+		}
 		
-		
+		/*if (currentStateMachine == EV_State_A1 || currentStateMachine == EV_State_A2) {
+			if ((EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice())) {
+				if ((selectedModuleMode == kEvModuleModeManual && manualStartChargingFlag) || selectedModuleMode == kEvModuleModeAuto) {
+					EV_State_C2();
+				}
+			}
+		} else if (currentStateMachine != EV_State_C2) {
+			EV_State_C2();
+		}*/
+	} else if (pilotPositiveVoltage < EV_STATE_D_THRES_HIGH && pilotPositiveVoltage > EV_STATE_D_THRES_LOW) {
+		/*if (currentStateMachine == EV_State_A1 || currentStateMachine == EV_State_A2) {
+			if ((EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice())) {
+				if ((selectedModuleMode == kEvModuleModeManual && manualStartChargingFlag) || selectedModuleMode == kEvModuleModeAuto) {
+					EV_State_D2();
+				}
+			}
+		} else if (currentStateMachine != EV_State_D2) {
+			EV_State_D2();
+		}*/
 	}
 	
 	if (pwmRunning && pilotNegativeVoltage < EV_STATE_F_THRES_HIGH && pilotNegativeVoltage < EV_STATE_F_THRES_LOW) {
-		if (currentStateMachine != EV_State_F) EV_State_F();
+		if (currentStateMachine != EV_State_F) {
+			EV_State_F();
+			
+			evStateMachineWaitMs = 30000;
+		}
 	} else if (pilotPositiveVoltage >= EV_STATE_E_THRES_LOW && pilotPositiveVoltage < EV_STATE_E_THRES_HIGH) {
-		if (currentStateMachine != EV_State_E) EV_State_E();
+		if (currentStateMachine != EV_State_E) {
+			EV_State_E();
+			
+			evStateMachineWaitMs = 30000;
+		}
+	}
+	
+	if (currentStateMachine == EV_State_E || currentStateMachine == EV_State_F) {
+		if (evStateMachineWaitMs == 0) {
+			EV_State_A1();
+		}
 	}
 }
 
@@ -57,12 +97,22 @@ void EV_State_A1(void) {
 	EV_OUTPUTS_SetPower(false);
 	EV_OUTPUTS_SetVentilation(false);
 	EV_OUTPUTS_SetShut(false);
+	
+	ledWaitMs = 0;
+	manualStartChargingFlag = false;
 }
 
 void EV_State_A2(void) {
 	currentStateMachine = EV_State_A2;
 	
 	if (!pwmRunning) EV_PWM_Start();
+	
+	EV_OUTPUTS_SetPower(false);
+	EV_OUTPUTS_SetVentilation(false);
+	EV_OUTPUTS_SetShut(false);
+	
+	ledWaitMs = 0;
+	manualStartChargingFlag = false;
 }
 
 void EV_State_B1(void) {
@@ -73,6 +123,9 @@ void EV_State_B1(void) {
 	EV_OUTPUTS_SetPower(false);
 	EV_OUTPUTS_SetVentilation(false);
 	EV_OUTPUTS_SetShut(true);
+	
+	ledWaitMs = 0;
+	manualStartChargingFlag = false;
 }
 
 void EV_State_B2(void) {
@@ -83,6 +136,9 @@ void EV_State_B2(void) {
 	EV_OUTPUTS_SetPower(false);
 	EV_OUTPUTS_SetVentilation(false);
 	EV_OUTPUTS_SetShut(true);
+	
+	ledWaitMs = 0;
+	manualStartChargingFlag = false;
 }
 
 void EV_State_C1(void) {
@@ -93,6 +149,9 @@ void EV_State_C1(void) {
 	EV_OUTPUTS_SetPower(false);
 	EV_OUTPUTS_SetVentilation(false);
 	EV_OUTPUTS_SetShut(true);
+	
+	ledWaitMs = 0;
+	manualStartChargingFlag = false;
 }
 
 void EV_State_C2(void) {
@@ -103,6 +162,9 @@ void EV_State_C2(void) {
 	EV_OUTPUTS_SetPower(true);
 	EV_OUTPUTS_SetVentilation(false);
 	EV_OUTPUTS_SetShut(true);
+	
+	ledWaitMs = 0;
+	manualStartChargingFlag = false;
 }
 
 void EV_State_D1(void) {
@@ -113,6 +175,9 @@ void EV_State_D1(void) {
 	EV_OUTPUTS_SetPower(false);
 	EV_OUTPUTS_SetVentilation(true);
 	EV_OUTPUTS_SetShut(true);
+	
+	ledWaitMs = 0;
+	manualStartChargingFlag = false;
 }
 
 void EV_State_D2(void) {
@@ -123,6 +188,9 @@ void EV_State_D2(void) {
 	EV_OUTPUTS_SetPower(true);
 	EV_OUTPUTS_SetVentilation(true);
 	EV_OUTPUTS_SetShut(true);
+	
+	ledWaitMs = 0;
+	manualStartChargingFlag = false;
 }
 
 void EV_State_E(void) {
@@ -133,6 +201,9 @@ void EV_State_E(void) {
 	EV_OUTPUTS_SetPower(false);
 	EV_OUTPUTS_SetVentilation(false);
 	EV_OUTPUTS_SetShut(false);
+	
+	ledWaitMs = 0;
+	manualStartChargingFlag = false;
 }
 
 void EV_State_F(void) {
@@ -143,6 +214,9 @@ void EV_State_F(void) {
 	EV_OUTPUTS_SetPower(false);
 	EV_OUTPUTS_SetVentilation(false);
 	EV_OUTPUTS_SetShut(false);
+	
+	ledWaitMs = 0;
+	manualStartChargingFlag = false;
 }
 
 void EV_DisableAllOutputs(void) {
@@ -153,6 +227,9 @@ void EV_DisableAllOutputs(void) {
 	EV_OUTPUTS_SetPower(false);
 	EV_OUTPUTS_SetVentilation(false);
 	EV_OUTPUTS_SetShut(false);
+	
+	ledWaitMs = 0;
+	manualStartChargingFlag = false;
 }
 
 /****************************************************************************

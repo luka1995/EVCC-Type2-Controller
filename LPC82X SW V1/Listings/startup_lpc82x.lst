@@ -383,19 +383,19 @@ ARM Macro Assembler    Page 6
               00000400 
               00000000 
 Command Line: --debug --xref --diag_suppress=9931 --cpu=Cortex-M0+ --apcs=inter
-work --depend=.\objects\startup_lpc82x.d -o.\objects\startup_lpc82x.o -IC:\User
-s\lukapenger\Desktop\evcc-type2-controller-lpc82x\RTE -IC:\Keil_v5\ARM\PACK\ARM
-\CMSIS\4.3.0\CMSIS\Include -IC:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\RTOS\RTX
-\INC -IC:\Keil_v5\ARM\PACK\Keil\LPC800_DFP\1.2.0\Device\Include --predefine="__
-RTX SETA 1" --predefine="__UVISION_VERSION SETA 516" --predefine="_RTE_ SETA 1"
+work --depend=.\objects\startup_lpc82x.d -o.\objects\startup_lpc82x.o -I"C:\Use
+rs\lukapenger\Desktop\LPC82X SW V1\RTE" -IC:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\C
+MSIS\Include -IC:\Keil_v5\ARM\PACK\ARM\CMSIS\4.3.0\CMSIS\RTOS\RTX\INC -IC:\Keil
+_v5\ARM\PACK\Keil\LPC800_DFP\1.2.0\Device\Include --predefine="__RTX SETA 1" --
+predefine="__UVISION_VERSION SETA 516" --predefine="_RTE_ SETA 1" --predefine="
 
 
 
 ARM Macro Assembler    Page 7 
 
 
- --predefine="LPC824M201JHI33 SETA 1" --list=.\listings\startup_lpc82x.lst RTE\
-Device\LPC824M201JHI33\startup_LPC82x.s
+LPC824M201JHI33 SETA 1" --list=.\listings\startup_lpc82x.lst RTE\Device\LPC824M
+201JHI33\startup_LPC82x.s
 
 
 

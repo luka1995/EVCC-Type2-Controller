@@ -8,8 +8,8 @@
 #include <lpc_types.h>
 #include <GPIO_LPC82x.h>
 
-#define EV_INPUT_START_CHARGING_PIN					0
-#define EV_INPUT_LOCK_DEVICE_PIN						0
+#define EV_INPUT_START_CHARGING_PIN					18
+#define EV_INPUT_LOCK_DEVICE_PIN						19
 
 void EV_INPUTS_Init(void);
 bool EV_INPUTS_GetStateSwitchStartCharging(void);
