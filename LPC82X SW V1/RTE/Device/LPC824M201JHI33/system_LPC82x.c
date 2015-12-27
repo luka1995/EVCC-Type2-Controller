@@ -90,7 +90,7 @@
 //            <2=> P = 4
 //            <3=> P = 8
 //     </h>
-#define SYSPLLCTRL_Val        0x00000000              // Reset value: 0x000
+#define SYSPLLCTRL_Val        0x00000024              // Reset value: 0x000
 //
 //     <o.0..1> Main Clock Source Select (MAINCLKSEL)
 //        <0=> IRC Oscillator
@@ -103,7 +103,7 @@
 //            <i> Divides main clock to provide system clock to core, memories, and peripherals.
 //            <i> 0 = is disabled
 //          <0-255>
-#define SYSAHBCLKDIV_Val      0x00000001              // Reset value: 0x001
+#define SYSAHBCLKDIV_Val      0x00000002              // Reset value: 0x001
 //   </e>
 //
 //   <e> Clock Configuration (via ROM PLL API)

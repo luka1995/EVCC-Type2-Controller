@@ -25,45 +25,45 @@ void EV_State_Machine(void) {
 			EV_State_A1();
 		}
 	} else if (pilotPositiveVoltage < EV_STATE_B_THRES_HIGH && pilotPositiveVoltage > EV_STATE_B_THRES_LOW) {
-		if (currentStateMachine != EV_State_B1 && currentStateMachine != EV_State_B2) {
-			EV_State_B1();
-			
-			evStateMachineWaitMs = 1000;
-		} else if (currentStateMachine == EV_State_B1) {
+		if (currentStateMachine == EV_State_B1) {
 			if (evStateMachineWaitMs == 0 && EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice()) {
 				if ((selectedModuleMode == kEvModuleModeManual && manualStartChargingFlag) || selectedModuleMode == kEvModuleModeAuto) {
 					EV_State_B2();
 				}
 			}
+		} else if (currentStateMachine != EV_State_B1 && currentStateMachine != EV_State_B2) {
+			EV_State_B1();
+			
+			evStateMachineWaitMs = 1000;
 		}
 	} else if (pilotPositiveVoltage < EV_STATE_C_THRES_HIGH && pilotPositiveVoltage > EV_STATE_C_THRES_LOW) {
-		if (currentStateMachine != EV_State_C1 && currentStateMachine != EV_State_C2) {
+		if (currentStateMachine == EV_State_B1) {
+			if (evStateMachineWaitMs == 0 && EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice()) {
+				if ((selectedModuleMode == kEvModuleModeManual && manualStartChargingFlag) || selectedModuleMode == kEvModuleModeAuto) {
+					EV_State_B2();
+				}
+			}
+		} else if (currentStateMachine != EV_State_C1 && currentStateMachine != EV_State_C2) {
 			if (currentStateMachine == EV_State_B2) {
 				EV_State_C2();
 			} else if ((EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice())) {
 				EV_State_C2();
 			}
 		}
-		
-		/*if (currentStateMachine == EV_State_A1 || currentStateMachine == EV_State_A2) {
-			if ((EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice())) {
-				if ((selectedModuleMode == kEvModuleModeManual && manualStartChargingFlag) || selectedModuleMode == kEvModuleModeAuto) {
-					EV_State_C2();
-				}
-			}
-		} else if (currentStateMachine != EV_State_C2) {
-			EV_State_C2();
-		}*/
 	} else if (pilotPositiveVoltage < EV_STATE_D_THRES_HIGH && pilotPositiveVoltage > EV_STATE_D_THRES_LOW) {
-		/*if (currentStateMachine == EV_State_A1 || currentStateMachine == EV_State_A2) {
-			if ((EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice())) {
+		if (currentStateMachine == EV_State_B1) {
+			if (evStateMachineWaitMs == 0 && EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice()) {
 				if ((selectedModuleMode == kEvModuleModeManual && manualStartChargingFlag) || selectedModuleMode == kEvModuleModeAuto) {
-					EV_State_D2();
+					EV_State_B2();
 				}
 			}
-		} else if (currentStateMachine != EV_State_D2) {
-			EV_State_D2();
-		}*/
+		} else if (currentStateMachine != EV_State_D1 && currentStateMachine != EV_State_D2) {
+			if (currentStateMachine == EV_State_C2) {
+				EV_State_D2();
+			} else if ((EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice())) {
+				EV_State_D2();
+			}
+		}
 	}
 	
 	if (pwmRunning && pilotNegativeVoltage < EV_STATE_F_THRES_HIGH && pilotNegativeVoltage < EV_STATE_F_THRES_LOW) {

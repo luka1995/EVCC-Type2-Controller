@@ -28,6 +28,33 @@
 #define EV_IRQNUM      											UART1_IRQn
 #define EV_UARTHNDLR   											UART1_IRQHandler
 
+typedef enum {
+	kEvUartCommandResetDevice = 0,
+	kEvUartCommandLoadFactorySettings = 1,
+	kEvUartCommandGetVersionFirmware = 2,
+	kEvUartCommandSetAddressDevice = 3,
+	kEvUartCommandGetAddressDevice = 4,
+	kEvUartCommandGetStateMachineMode = 5,
+	kEvUartCommandSwitchModeToManual = 6,
+	kEvUartCommandSwitchModeToAuto = 7,
+	kEvUartCommandGetStatusOutput = 8,
+	kEvUartCommandGetStatusInput = 9,
+	kEvUartCommandGetADCValueCPPositive = 10,
+	kEvUartCommandGetADCValueCPNegative = 11,
+	kEvUartCommandGetCPPositive = 12,
+	kEvUartCommandGetCPNegative = 13,
+	kEvUartCommandGetADCValueCS = 14,
+	kEvUartCommandGetIcPWMDutyCycle = 15,
+	kEvUartCommandSetIcMax = 16,
+	kEvUartCommandSetIDefault = 17,
+	kEvUartCommandGetIDefault = 18,
+	kEvUartCommandSwitchPWMOn = 19,
+	kEvUartCommandSwitchPWMOff = 20,
+	kEvUartCommandGetPWMState = 21,
+	kEvUartCommandStartCharging = 22,
+	kEvUartCommandStopCharging = 23
+} EvUartCommand;
+
 void EV_UART_Init(void);
 void EV_UART_DE_PIN_Set(bool state);
 void EV_UART_RE_PIN_Set(bool state);

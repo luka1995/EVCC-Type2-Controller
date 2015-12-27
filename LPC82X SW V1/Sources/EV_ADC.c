@@ -12,6 +12,7 @@ int pilotNegativeADCValue; // 0 - 4095
 float pilotPositiveVoltage; // 0.0V - 12.0V
 float pilotNegativeVoltage; // 0.0V - -12.0V
 bool adcVoltageMeasured = false;
+//uint32_t measureCount = 0;
 
 unsigned int adcCh10Voltage = 0, adcCh3Voltage = 0, adcCurrentSample = 0;
 
@@ -21,7 +22,7 @@ void EV_ADC_Init(void) {
 	ADC_StartCalibration(LPC_ADC);
 	while (!(ADC_IsCalibrationDone(LPC_ADC)));
 	
-	ADC_SetClockRate(LPC_ADC, 1200000);
+	ADC_SetClockRate(LPC_ADC, 12000000);
 	
 	SWM_Init();
 	SWM_EnableFixedPin(SWM_FIXED_ADC10);
@@ -44,8 +45,9 @@ void EV_ADC_Init(void) {
 }
 
 void EV_ADC_ReadCPVoltage(void) {
-	adcCh3Voltage = ADC_DR_RESULT(ADC_GetDataReg(LPC_ADC, 3));
-	adcCh10Voltage = ADC_DR_RESULT(ADC_GetDataReg(LPC_ADC, 10));
+		
+	adcCh3Voltage = ADC_DR_RESULT(ADC_GetDataReg(LPC_ADC, 3));  // PWM low voltage
+	adcCh10Voltage = ADC_DR_RESULT(ADC_GetDataReg(LPC_ADC, 10));  // PWM high voltage
 	
 	pilotPositiveVoltage = 4 * (((2 * adcCh10Voltage * (ADC_VREFP - ADC_VREFN)) / 0xFFF) - ADC_VCC);
 	pilotNegativeVoltage = -4 * (((2 * adcCh3Voltage * (ADC_VREFP - ADC_VREFN)) / 0xFFF) - ADC_VCC);
@@ -68,6 +70,7 @@ void ADC_SEQA_IRQHandler(void) {
 	
 	/* Clear SEQA_INT interrupt */
 	ADC_ClearFlags(LPC_ADC, ADC_FLAGS_SEQA_INT_MASK);
+	//measureCount++;
 }
 
 /****************************************************************************

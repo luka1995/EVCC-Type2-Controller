@@ -36,7 +36,7 @@ void EV_PWM_Init(void) {
 	LPC_SCT->MATCHREL0 = (sctClockRate / (2 * PWM_FREQ));
 	
 	LPC_SCT->MATCH1 = (LPC_SCT->MATCH0 * (1 - PWM_DUTY_CICLE1(evPwmDutyCycle)));
-	LPC_SCT->MATCH2 = (LPC_SCT->MATCH0 * (1 - PWM_DUTY_CICLE2(evPwmDutyCycle)));
+//	LPC_SCT->MATCH2 = (LPC_SCT->MATCH0 * (1 - PWM_DUTY_CICLE2(evPwmDutyCycle)));
 	LPC_SCT->MATCH3 = 0;  //EVENT 2
 	LPC_SCT->MATCH4 = 3000;  //EVENT 3
 
@@ -44,10 +44,10 @@ void EV_PWM_Init(void) {
 	
 	LPC_SCT->EV0_STATE = 0xFF;
 	LPC_SCT->EV0_CTRL = (1 << 0) | (1 << 12);  // match reg 1
-	
+	/*
 	LPC_SCT->EV1_STATE = 0xFF;
 	LPC_SCT->EV1_CTRL = (2 << 0) | (1 << 12);  // match reg 2
-	
+	*/
 	LPC_SCT->EV2_STATE = 0xFF;
 	LPC_SCT->EV2_CTRL = (3 << 0) | (1 << 12);  // match reg 3
 
@@ -55,14 +55,14 @@ void EV_PWM_Init(void) {
 	LPC_SCT->EV3_CTRL = (4 << 0) | (1 << 12);  // match reg 4
 	
 	LPC_SCT->EV4_STATE = 0xFF;
-	LPC_SCT->EV4_CTRL = (0 << 0) | (1 << 12);
+	LPC_SCT->EV4_CTRL = (0 << 0) | (1 << 12);  // match reg 0
 	
 	LPC_SCT->OUT0_SET = (1 << 0);  // event 0 sets OUT0
 	LPC_SCT->OUTPUTDIRCTRL |= (1 << 0);
-	
+	/*
 	LPC_SCT->OUT1_CLR = (1 << 1);  // event 1 clears OUT1
 	LPC_SCT->OUTPUTDIRCTRL |= (1 << 2);
-	
+	*/
 	LPC_SCT->OUT3_SET = (1 << 2) | (1 << 4);
 	LPC_SCT->OUT3_CLR = (1 << 3);
 	
@@ -73,23 +73,23 @@ void EV_PWM_Init(void) {
 void EV_PWM_Start(void) {
 	uint32_t temp;
  
-	LPC_SCT->CTRL &= ~(1 << 2);
 	ADC_DisableSequencer(LPC_ADC, ADC_SEQA_IDX);
 	temp = LPC_ADC->SEQA_CTRL;
 	temp |= ADC_SEQ_CTRL_CHANSEL(3);
 	LPC_ADC->SEQA_CTRL = temp;
 	ADC_EnableSequencer(LPC_ADC, ADC_SEQA_IDX);
-
+  LPC_SCT->CTRL &= ~(1 << 2);  //start SCT
 	pwmRunning = true;
 }
 
 void EV_PWM_Stop(void) {
 	uint32_t temp;
 
-	LPC_SCT->CTRL |= (1 << 2);
-	LPC_SCT->OUTPUT = (1 << 0) | (0 << 1);
+	LPC_SCT->CTRL |= (1 << 2);  //halt SCT
+	LPC_SCT->CTRL |= (1 << 3);	// clear counter
 	ADC_DisableSequencer(LPC_ADC, ADC_SEQA_IDX);
- 
+	LPC_SCT->OUTPUT = (1 << 0) | (0 << 1);
+
 	temp = LPC_ADC->SEQA_CTRL;
 	temp &= ~ADC_SEQ_CTRL_CHANSEL(3);
 	LPC_ADC->SEQA_CTRL = temp;
@@ -108,7 +108,7 @@ void EV_PWM_SetDutyCycle(float duty) {
 	evPwmDutyCycle = duty;
 	
 	LPC_SCT->MATCHREL1 = (LPC_SCT->MATCH0 * (1 - PWM_DUTY_CICLE1(evPwmDutyCycle)));
-	LPC_SCT->MATCHREL2 = (LPC_SCT->MATCH0 * (1 - PWM_DUTY_CICLE2(evPwmDutyCycle)));
+	//LPC_SCT->MATCHREL2 = (LPC_SCT->MATCH0 * (1 - PWM_DUTY_CICLE2(evPwmDutyCycle)));
 	LPC_SCT->MATCHREL3 = 0;
 	LPC_SCT->MATCHREL4 = 3000;
 }
