@@ -12,9 +12,9 @@
 #define EV_OUTPUT_LED2_PIN 											16
 #define EV_OUTPUT_LED1_INSIDE_PIN 							10
 #define EV_OUTPUT_LED2_INSIDE_PIN 							11
-#define EV_OUTPUT_POWER_PIN 										24
-#define EV_OUTPUT_VENTILATION_PIN 							25
-#define EV_OUTPUT_SHUT_PIN 											26
+#define EV_OUTPUT_POWER_PIN 										25
+#define EV_OUTPUT_VENTILATION_PIN 							26
+#define EV_OUTPUT_SHUT_PIN 											24
 
 void EV_OUTPUTS_Init(void);
 void EV_OUTPUTS_SetLED1(bool state);

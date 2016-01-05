@@ -1936,13 +1936,13 @@ Image Symbol Table
     i.EV_OUTPUTS_GetStateLED2                0x0000322a   Section        0  ev_outputs.o(i.EV_OUTPUTS_GetStateLED2)
     i.EV_OUTPUTS_GetStatePower               0x0000323c   Section        0  ev_outputs.o(i.EV_OUTPUTS_GetStatePower)
     i.EV_OUTPUTS_GetStateShut                0x0000324a   Section        0  ev_outputs.o(i.EV_OUTPUTS_GetStateShut)
-    i.EV_OUTPUTS_GetStateVentilation         0x00003256   Section        0  ev_outputs.o(i.EV_OUTPUTS_GetStateVentilation)
+    i.EV_OUTPUTS_GetStateVentilation         0x00003258   Section        0  ev_outputs.o(i.EV_OUTPUTS_GetStateVentilation)
     i.EV_OUTPUTS_Init                        0x00003264   Section        0  ev_outputs.o(i.EV_OUTPUTS_Init)
     i.EV_OUTPUTS_SetLED1                     0x00003302   Section        0  ev_outputs.o(i.EV_OUTPUTS_SetLED1)
     i.EV_OUTPUTS_SetLED2                     0x00003326   Section        0  ev_outputs.o(i.EV_OUTPUTS_SetLED2)
     i.EV_OUTPUTS_SetPower                    0x0000334c   Section        0  ev_outputs.o(i.EV_OUTPUTS_SetPower)
     i.EV_OUTPUTS_SetShut                     0x0000335e   Section        0  ev_outputs.o(i.EV_OUTPUTS_SetShut)
-    i.EV_OUTPUTS_SetVentilation              0x0000336e   Section        0  ev_outputs.o(i.EV_OUTPUTS_SetVentilation)
+    i.EV_OUTPUTS_SetVentilation              0x00003370   Section        0  ev_outputs.o(i.EV_OUTPUTS_SetVentilation)
     i.EV_PWM_GetSctClockRate                 0x00003380   Section        0  ev_pwm.o(i.EV_PWM_GetSctClockRate)
     i.EV_PWM_Init                            0x000033a4   Section        0  ev_pwm.o(i.EV_PWM_Init)
     i.EV_PWM_SetDutyCycle                    0x000034c4   Section        0  ev_pwm.o(i.EV_PWM_SetDutyCycle)
@@ -2508,14 +2508,14 @@ Image Symbol Table
     EV_OUTPUTS_GetStateLED1                  0x00003219   Thumb Code    18  ev_outputs.o(i.EV_OUTPUTS_GetStateLED1)
     EV_OUTPUTS_GetStateLED2                  0x0000322b   Thumb Code    18  ev_outputs.o(i.EV_OUTPUTS_GetStateLED2)
     EV_OUTPUTS_GetStatePower                 0x0000323d   Thumb Code    14  ev_outputs.o(i.EV_OUTPUTS_GetStatePower)
-    EV_OUTPUTS_GetStateShut                  0x0000324b   Thumb Code    12  ev_outputs.o(i.EV_OUTPUTS_GetStateShut)
-    EV_OUTPUTS_GetStateVentilation           0x00003257   Thumb Code    14  ev_outputs.o(i.EV_OUTPUTS_GetStateVentilation)
+    EV_OUTPUTS_GetStateShut                  0x0000324b   Thumb Code    14  ev_outputs.o(i.EV_OUTPUTS_GetStateShut)
+    EV_OUTPUTS_GetStateVentilation           0x00003259   Thumb Code    12  ev_outputs.o(i.EV_OUTPUTS_GetStateVentilation)
     EV_OUTPUTS_Init                          0x00003265   Thumb Code   158  ev_outputs.o(i.EV_OUTPUTS_Init)
     EV_OUTPUTS_SetLED1                       0x00003303   Thumb Code    36  ev_outputs.o(i.EV_OUTPUTS_SetLED1)
     EV_OUTPUTS_SetLED2                       0x00003327   Thumb Code    38  ev_outputs.o(i.EV_OUTPUTS_SetLED2)
     EV_OUTPUTS_SetPower                      0x0000334d   Thumb Code    18  ev_outputs.o(i.EV_OUTPUTS_SetPower)
-    EV_OUTPUTS_SetShut                       0x0000335f   Thumb Code    16  ev_outputs.o(i.EV_OUTPUTS_SetShut)
-    EV_OUTPUTS_SetVentilation                0x0000336f   Thumb Code    18  ev_outputs.o(i.EV_OUTPUTS_SetVentilation)
+    EV_OUTPUTS_SetShut                       0x0000335f   Thumb Code    18  ev_outputs.o(i.EV_OUTPUTS_SetShut)
+    EV_OUTPUTS_SetVentilation                0x00003371   Thumb Code    16  ev_outputs.o(i.EV_OUTPUTS_SetVentilation)
     EV_PWM_GetSctClockRate                   0x00003381   Thumb Code    30  ev_pwm.o(i.EV_PWM_GetSctClockRate)
     EV_PWM_Init                              0x000033a5   Thumb Code   248  ev_pwm.o(i.EV_PWM_Init)
     EV_PWM_SetDutyCycle                      0x000034c5   Thumb Code   108  ev_pwm.o(i.EV_PWM_SetDutyCycle)
@@ -2962,14 +2962,14 @@ Memory Map of the image
     0x00003218   0x00000012   Code   RO          500    i.EV_OUTPUTS_GetStateLED1  ev_outputs.o
     0x0000322a   0x00000012   Code   RO          501    i.EV_OUTPUTS_GetStateLED2  ev_outputs.o
     0x0000323c   0x0000000e   Code   RO          502    i.EV_OUTPUTS_GetStatePower  ev_outputs.o
-    0x0000324a   0x0000000c   Code   RO          503    i.EV_OUTPUTS_GetStateShut  ev_outputs.o
-    0x00003256   0x0000000e   Code   RO          504    i.EV_OUTPUTS_GetStateVentilation  ev_outputs.o
+    0x0000324a   0x0000000e   Code   RO          503    i.EV_OUTPUTS_GetStateShut  ev_outputs.o
+    0x00003258   0x0000000c   Code   RO          504    i.EV_OUTPUTS_GetStateVentilation  ev_outputs.o
     0x00003264   0x0000009e   Code   RO          505    i.EV_OUTPUTS_Init   ev_outputs.o
     0x00003302   0x00000024   Code   RO          506    i.EV_OUTPUTS_SetLED1  ev_outputs.o
     0x00003326   0x00000026   Code   RO          507    i.EV_OUTPUTS_SetLED2  ev_outputs.o
     0x0000334c   0x00000012   Code   RO          508    i.EV_OUTPUTS_SetPower  ev_outputs.o
-    0x0000335e   0x00000010   Code   RO          509    i.EV_OUTPUTS_SetShut  ev_outputs.o
-    0x0000336e   0x00000012   Code   RO          510    i.EV_OUTPUTS_SetVentilation  ev_outputs.o
+    0x0000335e   0x00000012   Code   RO          509    i.EV_OUTPUTS_SetShut  ev_outputs.o
+    0x00003370   0x00000010   Code   RO          510    i.EV_OUTPUTS_SetVentilation  ev_outputs.o
     0x00003380   0x00000024   Code   RO          275    i.EV_PWM_GetSctClockRate  ev_pwm.o
     0x000033a4   0x00000120   Code   RO          276    i.EV_PWM_Init       ev_pwm.o
     0x000034c4   0x0000008c   Code   RO          277    i.EV_PWM_SetDutyCycle  ev_pwm.o
