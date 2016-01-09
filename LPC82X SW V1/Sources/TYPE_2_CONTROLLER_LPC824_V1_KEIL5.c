@@ -16,6 +16,7 @@
 #include <GPIO_LPC82x.h>
 #include <ADC_LPC82x.h>
 #include <IAP_LPC82x.h>
+#include <WWDT_LPC82x.h>
 #include "SETTINGS.h"
 #include "EV_UART.h"
 #include "EV_PWM.h"
@@ -67,13 +68,61 @@ extern bool manualStartChargingFlag;
 int ledWaitMs = 0;
 
 /*****************************************************************************
- * Private variables
+ * Watchdog Timer
  ****************************************************************************/
 
+void WDT_IRQHandler(void) {
+	uint32_t wdtStatus = WWDT_GetStatus(LPC_WWDT);
+	
+	/* The chip will reset before this happens, but if the WDT doesn't
+	   have WWDT_WDMOD_WDRESET enabled, this will hit once */
+	if (wdtStatus & WWDT_WDMOD_WDTOF) {
+		/* A watchdog feed didn't occur prior to window timeout */
+		WWDT_UnsetOption(LPC_WWDT, WWDT_WDMOD_WDEN);	/* Stop WDT */
+		WWDT_ClearStatusFlag(LPC_WWDT, WWDT_WDMOD_WDTOF);
+		WWDT_Start(LPC_WWDT);	/* Needs restart */
+	}
 
-/*****************************************************************************
- * Thread definitions
- ****************************************************************************/
+	/* Handle warning interrupt */
+	if (wdtStatus & WWDT_WDMOD_WDINT) {
+		/* A watchdog feed didn't occur prior to warning timeout */
+		WWDT_ClearStatusFlag(LPC_WWDT, WWDT_WDMOD_WDINT);
+		WWDT_Feed(LPC_WWDT);
+	}
+}
+
+void Watchdog_Init(void) {
+	uint32_t wdtFreq;
+	
+	/* Freq = 0.6Mhz, divided by 64. WDT_OSC should be 9.375khz */
+	Clock_SetWDTOSC(WDTLFO_OSC_0_60, 64);
+	
+	SYSCTL_PowerUp(SYSCTL_SLPWAKE_WDTOSC_PD);
+
+	wdtFreq = (Clock_GetWDTOSCRate() / 4);
+	
+	WWDT_Init(LPC_WWDT);
+
+	/* Set watchdog feed time constant to approximately 2s
+	   Set watchdog warning time to 512 ticks after feed time constant
+	   Set watchdog window time to 3s */
+	WWDT_SetTimeOut(LPC_WWDT, wdtFreq * 2);
+	WWDT_SetWarning(LPC_WWDT, 512);
+	WWDT_SetWindow(LPC_WWDT, wdtFreq * 3);
+
+	/* Configure WWDT to reset on timeout */
+	WWDT_SetOption(LPC_WWDT, WWDT_WDMOD_WDRESET);
+
+	/* Clear watchdog warning and timeout interrupts */
+	WWDT_ClearStatusFlag(LPC_WWDT, WWDT_WDMOD_WDTOF | WWDT_WDMOD_WDINT);
+
+	/* Clear and enable watchdog interrupt */
+	NVIC_ClearPendingIRQ(WDT_IRQn);
+	NVIC_EnableIRQ(WDT_IRQn);
+
+	/* Start watchdog */
+	WWDT_Start(LPC_WWDT);
+}
 
 /*****************************************************************************
  * Public functions
@@ -94,6 +143,10 @@ void init(void) {
 	100 = 10ms
 	1000 = 1ms*/
 	SysTick_Config(SystemCoreClock / 1000);
+	
+	// WWDT Init
+	
+	Watchdog_Init();
 	
 	// EV Init
 	
