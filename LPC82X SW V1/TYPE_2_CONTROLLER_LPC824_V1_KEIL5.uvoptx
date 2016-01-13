@@ -144,7 +144,7 @@
         <SetRegEntry>
           <Number>0</Number>
           <Key>CMSIS_AGDI</Key>
-          <Name>-X"Keil ULINK-ME CMSIS-DAP" -UM0139MEE -O206 -S8 -C0 -P00 -N00("ARM CoreSight SW-DP") -D00(0BC11477) -L00(0) -FO31 -FD10000000 -FCFE0 -FN1 -FF0LPC8xx_32.FLM -FS00 -FL08000 -FP0($$Device:LPC824M201JHI33$Flash\LPC8xx_32.FLM)</Name>
+          <Name>-X"Keil ULINK-ME CMSIS-DAP" -UM0139MEE -O206 -S8 -C0 -P00 -N00("ARM CoreSight SW-DP") -D00(0BC11477) -L00(0) -TO18 -TC10000000 -TP20 -TDS8007 -TDT0 -TDC1F -TIEFFFFFFFF -TIP8 -FO31 -FD10000000 -FCFE0 -FN1 -FF0LPC8xx_32.FLM -FS00 -FL08000 -FP0($$Device:LPC824M201JHI33$Flash\LPC8xx_32.FLM)</Name>
         </SetRegEntry>
         <SetRegEntry>
           <Number>0</Number>
@@ -191,7 +191,7 @@
       <DebugFlag>
         <trace>0</trace>
         <periodic>1</periodic>
-        <aLwin>0</aLwin>
+        <aLwin>1</aLwin>
         <aCover>0</aCover>
         <aSer1>0</aSer1>
         <aSer2>0</aSer2>
@@ -217,20 +217,6 @@
       <LintExecutable></LintExecutable>
       <LintConfigFile></LintConfigFile>
       <bLintAuto>0</bLintAuto>
-      <SystemViewers>
-        <Entry>
-          <Name>System Viewer\ADC</Name>
-          <WinId>35904</WinId>
-        </Entry>
-        <Entry>
-          <Name>System Viewer\SCT</Name>
-          <WinId>35905</WinId>
-        </Entry>
-        <Entry>
-          <Name>System Viewer\SYSCON</Name>
-          <WinId>35903</WinId>
-        </Entry>
-      </SystemViewers>
     </TargetOption>
   </Target>
 
@@ -280,7 +266,7 @@
       <GroupNumber>1</GroupNumber>
       <FileNumber>4</FileNumber>
       <FileType>1</FileType>
-      <tvExp>0</tvExp>
+      <tvExp>1</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>.\Sources\EV_PWM.c</PathWithFileName>
@@ -480,7 +466,7 @@
       <GroupNumber>2</GroupNumber>
       <FileNumber>20</FileNumber>
       <FileType>1</FileType>
-      <tvExp>1</tvExp>
+      <tvExp>0</tvExp>
       <tvExpOptDlg>0</tvExpOptDlg>
       <bDave2>0</bDave2>
       <PathWithFileName>.\Library\WWDT_LPC82x.c</PathWithFileName>

@@ -1,5 +1,5 @@
 Dependencies for Project 'TYPE_2_CONTROLLER_LPC824_V1_KEIL5', Target 'LPC824 Flash': (DO NOT MODIFY !)
-F (.\Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c)(0x569153FE)(-c --cpu Cortex-M0+ -D__RTX -g -O0 --apcs=interwork --split_sections -I.\Library -I.\Library\lpc_core -I.\Library\lpc_core\lpc_chip -I.\Library\lpc_core\lpc_chip\chip_8xx -I.\Library\lpc_core\lpc_chip\chip_common -I.\Library\lpc_core\lpc_chip\chip_8xx\config_82x -I.\Library\lpc_core\lpc_board -I.\Library\lpc_core\lpc_board\board_common -I.\Library\lpc_core\lpc_board\boards_8xx\nxp_lpcxpresso_824-I "C:\Users\Public\Desktop\EVCC-TYPE2-Controller\LPC82X SW V1\RTE"-I C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-I C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\RTOS\RTX\INC-I C:\Keil_v5\ARM\PACK\Keil\LPC800_DFP\1.2.0\Device\Include-D__UVISION_VERSION="517" -D_RTE_ -DLPC824M201JHI33 -DCORE_M0PLUS-o .\objects\type_2_controller_lpc824_v1_keil5.o --omf_browse .\objects\type_2_controller_lpc824_v1_keil5.crf --depend .\objects\type_2_controller_lpc824_v1_keil5.d)
+F (.\Sources\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.c)(0x56965121)(-c --cpu Cortex-M0+ -D__RTX -g -O0 --apcs=interwork --split_sections -I.\Library -I.\Library\lpc_core -I.\Library\lpc_core\lpc_chip -I.\Library\lpc_core\lpc_chip\chip_8xx -I.\Library\lpc_core\lpc_chip\chip_common -I.\Library\lpc_core\lpc_chip\chip_8xx\config_82x -I.\Library\lpc_core\lpc_board -I.\Library\lpc_core\lpc_board\board_common -I.\Library\lpc_core\lpc_board\boards_8xx\nxp_lpcxpresso_824-I "C:\Users\Public\Desktop\EVCC-TYPE2-Controller\LPC82X SW V1\RTE"-I C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-I C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\RTOS\RTX\INC-I C:\Keil_v5\ARM\PACK\Keil\LPC800_DFP\1.2.0\Device\Include-D__UVISION_VERSION="517" -D_RTE_ -DLPC824M201JHI33 -DCORE_M0PLUS-o .\objects\type_2_controller_lpc824_v1_keil5.o --omf_browse .\objects\type_2_controller_lpc824_v1_keil5.crf --depend .\objects\type_2_controller_lpc824_v1_keil5.d)
 I (C:\Keil_v5\ARM\ARMCC\include\stdio.h)(0x55DB7FD6)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x55DB7FE0)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x55DB7FD6)
@@ -21,7 +21,7 @@ I (.\Library\lpc_types.h)(0x5690E893)
 I (.\Library\IAP_LPC82x.h)(0x5690E893)
 I (.\Library\WWDT_LPC82x.h)(0x56915819)
 I (Sources\SETTINGS.h)(0x5690E894)
-I (Sources\EV_UART.h)(0x5690E894)
+I (Sources\EV_UART.h)(0x56965121)
 I (.\Library\UART_LPC82x.h)(0x5690E893)
 I (C:\Keil_v5\ARM\ARMCC\include\stdlib.h)(0x55DB7FD8)
 I (C:\Keil_v5\ARM\ARMCC\include\stdarg.h)(0x55DB7FDE)
@@ -33,7 +33,7 @@ I (Sources\EV_OUTPUTS.h)(0x5690E894)
 I (Sources\EV_INPUTS.h)(0x5690E894)
 I (Sources\HELP.h)(0x5690E894)
 F (.\Sources\EV_UART.c)(0x5690E894)(-c --cpu Cortex-M0+ -D__RTX -g -O0 --apcs=interwork --split_sections -I.\Library -I.\Library\lpc_core -I.\Library\lpc_core\lpc_chip -I.\Library\lpc_core\lpc_chip\chip_8xx -I.\Library\lpc_core\lpc_chip\chip_common -I.\Library\lpc_core\lpc_chip\chip_8xx\config_82x -I.\Library\lpc_core\lpc_board -I.\Library\lpc_core\lpc_board\board_common -I.\Library\lpc_core\lpc_board\boards_8xx\nxp_lpcxpresso_824-I "C:\Users\Public\Desktop\EVCC-TYPE2-Controller\LPC82X SW V1\RTE"-I C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\Include-I C:\Keil_v5\ARM\PACK\ARM\CMSIS\4.5.0\CMSIS\RTOS\RTX\INC-I C:\Keil_v5\ARM\PACK\Keil\LPC800_DFP\1.2.0\Device\Include-D__UVISION_VERSION="517" -D_RTE_ -DLPC824M201JHI33 -DCORE_M0PLUS-o .\objects\ev_uart.o --omf_browse .\objects\ev_uart.crf --depend .\objects\ev_uart.d)
-I (Sources\EV_UART.h)(0x5690E894)
+I (Sources\EV_UART.h)(0x56965121)
 I (.\Library\lpc_types.h)(0x5690E893)
 I (C:\Keil_v5\ARM\ARMCC\include\stdint.h)(0x55DB7FE0)
 I (C:\Keil_v5\ARM\ARMCC\include\stdbool.h)(0x55DB7FD6)
