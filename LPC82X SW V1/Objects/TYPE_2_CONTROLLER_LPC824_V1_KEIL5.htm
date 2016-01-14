@@ -3,7 +3,7 @@
 <title>Static Call Graph - [.\Objects\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.axf]</title></head>
 <body><HR>
 <H1>Static Call Graph for image .\Objects\TYPE_2_CONTROLLER_LPC824_V1_KEIL5.axf</H1><HR>
-<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060061: Last Updated: Wed Jan 13 14:29:10 2016
+<BR><P>#&#060CALLGRAPH&#062# ARM Linker, 5060061: Last Updated: Thu Jan 14 10:45:43 2016
 <BR><P>
 <H3>Maximum Stack Usage =        368 bytes + Unknown(Functions without stacksize, Cycles, Untraceable Function Pointers)</H3><H3>
 Call chain for Maximum Stack Depth:</H3>
@@ -38,6 +38,7 @@ Function Pointers
  <LI><a href="#[38]">EV_State_A1</a> from ev_state_machine.o(i.EV_State_A1) referenced from ev_state_machine.o(i.EV_State_Machine)
  <LI><a href="#[38]">EV_State_A1</a> from ev_state_machine.o(i.EV_State_A1) referenced 2 times from type_2_controller_lpc824_v1_keil5.o(i.main)
  <LI><a href="#[39]">EV_State_A2</a> from ev_state_machine.o(i.EV_State_A2) referenced from ev_state_machine.o(i.EV_State_A2)
+ <LI><a href="#[39]">EV_State_A2</a> from ev_state_machine.o(i.EV_State_A2) referenced from ev_state_machine.o(i.EV_State_Machine)
  <LI><a href="#[39]">EV_State_A2</a> from ev_state_machine.o(i.EV_State_A2) referenced 2 times from type_2_controller_lpc824_v1_keil5.o(i.main)
  <LI><a href="#[3a]">EV_State_B1</a> from ev_state_machine.o(i.EV_State_B1) referenced from ev_state_machine.o(i.EV_State_B1)
  <LI><a href="#[3a]">EV_State_B1</a> from ev_state_machine.o(i.EV_State_B1) referenced from ev_state_machine.o(i.EV_State_Machine)
@@ -47,13 +48,13 @@ Function Pointers
  <LI><a href="#[3b]">EV_State_B2</a> from ev_state_machine.o(i.EV_State_B2) referenced 3 times from type_2_controller_lpc824_v1_keil5.o(i.main)
  <LI><a href="#[3c]">EV_State_C1</a> from ev_state_machine.o(i.EV_State_C1) referenced from ev_state_machine.o(i.EV_State_C1)
  <LI><a href="#[3c]">EV_State_C1</a> from ev_state_machine.o(i.EV_State_C1) referenced from ev_state_machine.o(i.EV_State_Machine)
- <LI><a href="#[3c]">EV_State_C1</a> from ev_state_machine.o(i.EV_State_C1) referenced 2 times from type_2_controller_lpc824_v1_keil5.o(i.main)
+ <LI><a href="#[3c]">EV_State_C1</a> from ev_state_machine.o(i.EV_State_C1) referenced 3 times from type_2_controller_lpc824_v1_keil5.o(i.main)
  <LI><a href="#[3d]">EV_State_C2</a> from ev_state_machine.o(i.EV_State_C2) referenced from ev_state_machine.o(i.EV_State_C2)
  <LI><a href="#[3d]">EV_State_C2</a> from ev_state_machine.o(i.EV_State_C2) referenced from ev_state_machine.o(i.EV_State_Machine)
  <LI><a href="#[3d]">EV_State_C2</a> from ev_state_machine.o(i.EV_State_C2) referenced 3 times from type_2_controller_lpc824_v1_keil5.o(i.main)
  <LI><a href="#[3e]">EV_State_D1</a> from ev_state_machine.o(i.EV_State_D1) referenced from ev_state_machine.o(i.EV_State_D1)
  <LI><a href="#[3e]">EV_State_D1</a> from ev_state_machine.o(i.EV_State_D1) referenced from ev_state_machine.o(i.EV_State_Machine)
- <LI><a href="#[3e]">EV_State_D1</a> from ev_state_machine.o(i.EV_State_D1) referenced 2 times from type_2_controller_lpc824_v1_keil5.o(i.main)
+ <LI><a href="#[3e]">EV_State_D1</a> from ev_state_machine.o(i.EV_State_D1) referenced 3 times from type_2_controller_lpc824_v1_keil5.o(i.main)
  <LI><a href="#[3f]">EV_State_D2</a> from ev_state_machine.o(i.EV_State_D2) referenced from ev_state_machine.o(i.EV_State_D2)
  <LI><a href="#[3f]">EV_State_D2</a> from ev_state_machine.o(i.EV_State_D2) referenced from ev_state_machine.o(i.EV_State_Machine)
  <LI><a href="#[3f]">EV_State_D2</a> from ev_state_machine.o(i.EV_State_D2) referenced 3 times from type_2_controller_lpc824_v1_keil5.o(i.main)
@@ -1995,7 +1996,8 @@ Global Symbols
 <LI><a href="#[12e]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EV_OUTPUTS_SetPower
 <LI><a href="#[13c]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EV_PWM_Start
 </UL>
-<BR>[Address Reference Count : 2]<UL><LI> type_2_controller_lpc824_v1_keil5.o(i.main)
+<BR>[Address Reference Count : 3]<UL><LI> ev_state_machine.o(i.EV_State_Machine)
+<LI> type_2_controller_lpc824_v1_keil5.o(i.main)
 <LI> ev_state_machine.o(i.EV_State_A2)
 </UL>
 <P><STRONG><a name="[3a]"></a>EV_State_B1</STRONG> (Thumb, 50 bytes, Stack size 8 bytes, ev_state_machine.o(i.EV_State_B1))
@@ -2107,7 +2109,7 @@ Global Symbols
 <LI> ev_state_machine.o(i.EV_State_Machine)
 <LI> type_2_controller_lpc824_v1_keil5.o(i.main)
 </UL>
-<P><STRONG><a name="[13e]"></a>EV_State_Machine</STRONG> (Thumb, 686 bytes, Stack size 16 bytes, ev_state_machine.o(i.EV_State_Machine))
+<P><STRONG><a name="[13e]"></a>EV_State_Machine</STRONG> (Thumb, 754 bytes, Stack size 16 bytes, ev_state_machine.o(i.EV_State_Machine))
 <BR><BR>[Stack]<UL><LI>Max Depth = 52<LI>Call Chain = EV_State_Machine &rArr; EV_State_F &rArr; EV_PWM_Stop &rArr; ADC_EnableSequencer &rArr; ADC_SetSequencerBits
 </UL>
 <BR>[Calls]<UL><LI><a href="#[41]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;EV_State_F
@@ -2690,7 +2692,7 @@ Global Symbols
 <BR>[Called By]<UL><LI><a href="#[173]">&gt;&gt;</a>&nbsp;&nbsp;&nbsp;isrMessagePut
 </UL>
 
-<P><STRONG><a name="[4f]"></a>main</STRONG> (Thumb, 3016 bytes, Stack size 40 bytes, type_2_controller_lpc824_v1_keil5.o(i.main))
+<P><STRONG><a name="[4f]"></a>main</STRONG> (Thumb, 3056 bytes, Stack size 40 bytes, type_2_controller_lpc824_v1_keil5.o(i.main))
 <BR><BR>[Stack]<UL><LI>Max Depth = 240 + Unknown Stack Size
 <LI>Call Chain = main &rArr; EV_UART_SendStringFormat &rArr; __c89vsprintf &rArr; _printf_char_common &rArr; __printf
 </UL>

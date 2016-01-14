@@ -573,7 +573,7 @@ int main(void) {
 										if (selectedModuleMode != kEvModuleModeManual) {
 											selectedModuleMode = kEvModuleModeManual;
 											
-											if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_C2 || currentStateMachine == EV_StateD1 || currentStateMachine == EV_StateD2) {
+											if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_C2 || currentStateMachine == EV_State_D1 || currentStateMachine == EV_State_D2) {
 												EV_State_B1();
 											}
 											
@@ -588,7 +588,7 @@ int main(void) {
 										if (selectedModuleMode != kEvModuleModeAuto) {
 											selectedModuleMode = kEvModuleModeAuto;
 											
-											if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_C2 || currentStateMachine == EV_StateD1 || currentStateMachine == EV_StateD2) {
+											if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_C2 || currentStateMachine == EV_State_D1 || currentStateMachine == EV_State_D2) {
 												EV_State_B1();
 											}
 											
@@ -707,7 +707,7 @@ int main(void) {
 									}
 									case kEvUartCommandStopCharging: { // Stop charging
 										if (selectedModuleMode == kEvModuleModeManual) {
-											if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_C2 || currentStateMachine == EV_StateD1 || currentStateMachine == EV_StateD2) {
+											if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_C2 || currentStateMachine == EV_State_D1 || currentStateMachine == EV_State_D2) {
 												EV_State_B1();
 												
 												EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);

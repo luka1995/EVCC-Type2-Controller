@@ -48,9 +48,9 @@ void EV_State_Machine(void) {
 				EV_State_C2();
 			} else if ((EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice())) {
 				EV_State_C2();
+			} else if (selectedModuleMode == kEvModuleModeAuto && (currentStateMachine == EV_State_A1 || currentStateMachine == EV_State_A2)) {
+				EV_State_B1();
 			}
-		} else if (selectedModuleMode == kEvModuleModeAuto && (currentStateMachine == EV_State_A1 || currentStateMachine == EV_State_A2)) {
-			EV_State_B1();
 		}
 	} else if (pilotPositiveVoltage < EV_STATE_D_THRES_HIGH && pilotPositiveVoltage > EV_STATE_D_THRES_LOW) {
 		if (currentStateMachine == EV_State_B1) {
@@ -64,6 +64,8 @@ void EV_State_Machine(void) {
 				EV_State_D2();
 			} else if ((EV_INPUTS_GetStateSwitchStartCharging() && EV_INPUTS_GetStateSwitchLockDevice())) {
 				EV_State_D2();
+			} else if (selectedModuleMode == kEvModuleModeAuto && (currentStateMachine == EV_State_A1 || currentStateMachine == EV_State_A2)) {
+				EV_State_B1();
 			}
 		}
 	}
