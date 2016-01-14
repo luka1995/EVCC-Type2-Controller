@@ -34,7 +34,7 @@ void EV_State_Machine(void) {
 		} else if (currentStateMachine != EV_State_B1 && currentStateMachine != EV_State_B2) {
 			EV_State_B1();
 			
-			evStateMachineWaitMs = 1000;
+			evStateMachineWaitMs = 2000;
 		}
 	} else if (pilotPositiveVoltage < EV_STATE_C_THRES_HIGH && pilotPositiveVoltage > EV_STATE_C_THRES_LOW) {
 		if (currentStateMachine == EV_State_B1) {
