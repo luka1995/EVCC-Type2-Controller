@@ -570,7 +570,7 @@ int main(void) {
 										break;
 									}
 									case kEvUartCommandSwitchModeToManual: { // SWITCH MODE TO MANUAL (Stop charging)
-										if (selectedModuleMode != kEvModuleModeManual) {
+										if (selectedModuleMode != kEvModuleModeManual && currentStateMachine == EV_State_A1 || currentStateMachine == EV_State_A2) {
 											selectedModuleMode = kEvModuleModeManual;
 											
 											if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_C2 || currentStateMachine == EV_State_D1 || currentStateMachine == EV_State_D2) {
@@ -585,12 +585,8 @@ int main(void) {
 										break;
 									}
 									case kEvUartCommandSwitchModeToAuto: { // SWITCH MODE TO AUTO (Stop charging)
-										if (selectedModuleMode != kEvModuleModeAuto) {
+										if (selectedModuleMode != kEvModuleModeAuto && currentStateMachine == EV_State_A1 || currentStateMachine == EV_State_A2) {
 											selectedModuleMode = kEvModuleModeAuto;
-											
-											if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_C2 || currentStateMachine == EV_State_D1 || currentStateMachine == EV_State_D2) {
-												EV_State_B1();
-											}
 											
 											EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 											EV_UART_SendString("\r\n");
