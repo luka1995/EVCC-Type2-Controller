@@ -573,7 +573,9 @@ int main(void) {
 										if (selectedModuleMode != kEvModuleModeManual) {
 											selectedModuleMode = kEvModuleModeManual;
 											
-											EV_State_B1();
+											if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_C2 || currentStateMachine == EV_StateD1 || currentStateMachine == EV_StateD2) {
+												EV_State_B1();
+											}
 											
 											EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 											EV_UART_SendString("\r\n");
@@ -586,7 +588,9 @@ int main(void) {
 										if (selectedModuleMode != kEvModuleModeAuto) {
 											selectedModuleMode = kEvModuleModeAuto;
 											
-											EV_State_B1();
+											if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_C2 || currentStateMachine == EV_StateD1 || currentStateMachine == EV_StateD2) {
+												EV_State_B1();
+											}
 											
 											EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 											EV_UART_SendString("\r\n");
@@ -693,11 +697,6 @@ int main(void) {
 												
 												EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 												EV_UART_SendString("\r\n");
-											} else if (currentStateMachine == EV_State_B1) {
-												manualStartChargingFlag = true;
-												
-												EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
-												EV_UART_SendString("\r\n");
 											} else {
 												evUartShowCommandError = true;
 											}
@@ -708,7 +707,7 @@ int main(void) {
 									}
 									case kEvUartCommandStopCharging: { // Stop charging
 										if (selectedModuleMode == kEvModuleModeManual) {
-											if (currentStateMachine == EV_State_C2 || currentStateMachine == EV_State_D2) {
+											if (currentStateMachine == EV_State_C1 || currentStateMachine == EV_State_C2 || currentStateMachine == EV_StateD1 || currentStateMachine == EV_StateD2) {
 												EV_State_B1();
 												
 												EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
