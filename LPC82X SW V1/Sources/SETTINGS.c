@@ -48,6 +48,7 @@ void SETTINGS_Save(void) {
 void SETTINGS_LoadFactorySettings(void) {
 	settingsData.selectedModuleAddress = 0;
 	settingsData.selectedIdefault = EV_CURRENT_PWM_DUTY_6A;
+	settingsData.enableProximity = 1;
 }
 
 /****************************************************************************

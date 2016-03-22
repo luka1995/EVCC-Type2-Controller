@@ -10,12 +10,13 @@
 #include <ADC_LPC82x.h>
 #include "CLOCK_LPC82x.h"
 
-#define ADC_VCC												3.3
-#define ADC_VREFP											ADC_VCC			
-#define ADC_VREFN											0.0
+#define ADC_VCC														3.3
+#define ADC_VREFP													ADC_VCC			
+#define ADC_VREFN													0.0
 
 void EV_ADC_Init(void);
 void EV_ADC_ReadCPVoltage(void);
+void EV_ADC_ReadPPVoltage(void);
 void EV_ADC_ClearCalculationValues(void);
 
 #endif // end __EV_ADC_H

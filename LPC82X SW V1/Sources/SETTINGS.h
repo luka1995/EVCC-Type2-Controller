@@ -14,6 +14,7 @@
 typedef struct {
 	int selectedModuleAddress;
 	float selectedIdefault;
+	int enableProximity;
 } SETTINGS_Struct;
 
 void SETTINGS_Load(void);

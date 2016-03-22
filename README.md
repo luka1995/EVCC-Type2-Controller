@@ -16,3 +16,12 @@ Type 2 standard: IEC 61851-1 Mode 3
 Serial interface: RS485, 38400Bd, 8 data bits, 1 stop bit, no parity</br>
 -> No internal termination; use 120Ω-resistor to terminate both ends of network!
 
+##Proximity voltages:
+
+Max Current
+13 A --> Vadc = 2,57 V (R = 1550 ohms)
+20 A --> Vadc = 2,22 V (R = 680 ohms)
+32 A --> Vadc = 1,82 V (R = 220 ohms)
+63 A --> Vadc = 1,66 V (R = 100 ohms)
+
+Not connected --> Vadc = 3.3 V (Max 6A)

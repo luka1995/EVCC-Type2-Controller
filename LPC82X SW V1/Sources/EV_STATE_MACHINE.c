@@ -5,9 +5,11 @@
 
 #include "EV_STATE_MACHINE.h"
 #include "cmsis_os.h"
+#include "SETTINGS.h"
 
 EvModuleMode selectedModuleMode = kEvModuleModeAuto;
 
+extern float proximityVoltage; // 0.0V - 3.3V
 extern float pilotPositiveVoltage; // 0.0V - 12.0V
 extern float pilotNegativeVoltage; // 0.0V - -12.0V
 
@@ -18,6 +20,9 @@ extern float evPwmDutyCycle;
 int evStateMachineWaitMs = 0;
 extern int ledWaitMs;
 bool manualStartChargingFlag = false;
+
+extern SETTINGS_Struct settingsData;
+extern float selectedMaximumCurrent;
 
 void EV_State_Machine(void) {
 	if (pilotPositiveVoltage < EV_STATE_A_THRES_HIGH && pilotPositiveVoltage > EV_STATE_A_THRES_LOW) {
@@ -120,7 +125,17 @@ void EV_State_A2(void) {
 }
 
 void EV_State_B1(void) {
+	float value = 0.0f;
+	
 	currentStateMachine = EV_State_B1;
+	
+	if (settingsData.enableProximity > 0) {
+		value = EV_PWM_CheckProximityMaxCurrent(proximityVoltage);
+		
+		if (value <= selectedMaximumCurrent) {
+			EV_PWM_SetDutyCycle(EV_PWM_CheckProximityMaxCurrent(proximityVoltage));
+		}
+	}
 	
 	if (pwmRunning) EV_PWM_Stop();
 	

@@ -33,6 +33,7 @@ void EV_PWM_Init(void);
 void EV_PWM_Start(void);
 void EV_PWM_Stop(void);
 void EV_PWM_SetDutyCycle(float duty);
+float EV_PWM_CheckProximityMaxCurrent(float proximityVoltage);
 
 #endif // end __EV_PWM_H
 /****************************************************************************

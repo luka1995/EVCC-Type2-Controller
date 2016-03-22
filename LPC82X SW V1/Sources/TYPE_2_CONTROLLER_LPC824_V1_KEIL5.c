@@ -53,13 +53,15 @@ extern float selectedMaximumCurrent;
 extern bool pwmRunning;
 extern float evPwmDutyCycle;
 
-extern bool thresholdCrossed, sequenceComplete;
+extern bool sequenceAComplete, sequenceBComplete;
 extern bool groundError;
-extern int pilotPositiveADCValue; // 0 - 4095
-extern int pilotNegativeADCValue; // 0 - 4095
+extern unsigned int proximityADCValue; // 0 - 4095
+extern unsigned int pilotPositiveADCValue; // 0 - 4095
+extern unsigned int pilotNegativeADCValue; // 0 - 4095
+extern float proximityVoltage; // 0.0V - 3.3V
 extern float pilotPositiveVoltage; // 0.0V - 12.0V
 extern float pilotNegativeVoltage; // 0.0V - -12.0V
-extern bool adcVoltageMeasured;
+extern bool adcCPVoltageMeasured, adcPPVoltageMeasured;
 
 extern void (*currentStateMachine)(void);
 extern int evStateMachineWaitMs;
@@ -207,12 +209,20 @@ int main(void) {
 		* ADC Voltage Read
 		****************************************************************************/
 		
-		if (sequenceComplete == true) {
-			sequenceComplete = false; // Clear flag
+		if (sequenceAComplete == true) {
+			sequenceAComplete = false; // Clear flag
 			
 			// Read CP Voltage
 			
 			EV_ADC_ReadCPVoltage();
+	  }
+		
+		if (sequenceBComplete == true) {
+			sequenceBComplete = false; // Clear flag
+			
+			// Read PP Voltage
+			
+			EV_ADC_ReadPPVoltage();
 	  }
 		
 		/*****************************************************************************
@@ -222,19 +232,21 @@ int main(void) {
 		if (SysTick->CTRL & SysTick_CTRL_COUNTFLAG_Msk) {
 			// ADC Sequencer
 			
-			if (pwmRunning == false) {
-				if (sysTickAdcSampleValue >= ADC_SAMPLE_INTERVAL) {
-					sysTickAdcSampleValue = 0; // Clear flag
+			if (sysTickAdcSampleValue >= ADC_SAMPLE_INTERVAL) {
+				sysTickAdcSampleValue = 0; // Clear flag
 
+				if (pwmRunning == false) {
 					ADC_StartSequencer(LPC_ADC, ADC_SEQA_IDX);
-				} else {
-					sysTickAdcSampleValue++;
 				}
+				
+				ADC_StartSequencer(LPC_ADC, ADC_SEQB_IDX);
+			} else {
+				sysTickAdcSampleValue++;
 			}
 			
 			// EV State Machine
 			
-			if (adcVoltageMeasured && sysTickStateMachineValue >= STATE_MACHINE_INTERVAL) {
+			if (adcCPVoltageMeasured && sysTickStateMachineValue >= STATE_MACHINE_INTERVAL) {
 				sysTickStateMachineValue = 0; // Clear flag
 
 				// State machine
@@ -607,25 +619,31 @@ int main(void) {
 										EV_UART_SendString("\r\n");
 										break;
 									}
-									case kEvUartCommandGetADCValueCPPositive: { // GET ADC-value of pos. Ucp
+									case kEvUartCommandGetADCValueCPPositive: { // Get ADC value positive pilot
 										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 										EV_UART_SendStringFormat(" %d", pilotPositiveADCValue);
 										EV_UART_SendString("\r\n");
 										break;
 									}
-									case kEvUartCommandGetADCValueCPNegative: { // GET ADC-value of neg. Ucp
+									case kEvUartCommandGetADCValueCPNegative: { // Get ADC value negative pilot
 										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 										EV_UART_SendStringFormat(" %d", (0xFFF - pilotNegativeADCValue));
 										EV_UART_SendString("\r\n");
 										break;
 									}
-									case kEvUartCommandGetCPPositive: { // Get Ucp pos. voltage
+									case kEvUartCommandGetADCValuePP: {
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendStringFormat(" %d", proximityADCValue);
+										EV_UART_SendString("\r\n");
+										break;
+									}
+									case kEvUartCommandGetCPPositive: { // Get positive pilot voltage
 										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 										EV_UART_SendStringFormat(" %.2f", pilotPositiveVoltage);
 										EV_UART_SendString("\r\n");
 										break;
 									}
-									case kEvUartCommandGetCPNegative: { // Get Ucp neg. voltage
+									case kEvUartCommandGetCPNegative: { // Get negative pilot voltage
 										if (pwmRunning) {
 											EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
 											EV_UART_SendStringFormat(" %.2f", pilotNegativeVoltage);
@@ -637,7 +655,10 @@ int main(void) {
 										}
 										break;
 									}
-									case kEvUartCommandGetADCValueCS: { // GET ADC-value of Ucs
+									case kEvUartCommandGetPP: { // GET proximity voltage
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendStringFormat(" %.2f", proximityVoltage);
+										EV_UART_SendString("\r\n");
 										break;
 									}
 									case kEvUartCommandGetIcPWMDutyCycle: { // GET Ic - PWM duty cycle
@@ -713,6 +734,36 @@ int main(void) {
 											}
 										} else {
 											evUartShowCommandError = true;
+										}
+										break;
+									}
+									case kEvUartCommandEnableProximityDetection: { // Enable proximity cable detection max current
+										settingsData.enableProximity = 1;
+										
+										SETTINGS_Save();
+												
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendString("\r\n");
+										break;
+									}
+									case kEvUartCommandDisableProximityDetection: { // Disable proximity cable detection max current
+										settingsData.enableProximity = 0;
+										
+										SETTINGS_Save();
+												
+										EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+										EV_UART_SendString("\r\n");
+										break;
+									}
+									case kEvUartCommandGetProximityDetectionState: { // Get proximity cable detection state
+										if (settingsData.enableProximity == 0) {
+											EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+											EV_UART_SendString(" 0");
+											EV_UART_SendString("\r\n");
+										} else {
+											EV_UART_SendStringFormat("%c%d %02d", EV_UART_SEND_CHARACTER, settingsData.selectedModuleAddress, evUartFunctionNumber);
+											EV_UART_SendString(" 1");
+											EV_UART_SendString("\r\n");
 										}
 										break;
 									}

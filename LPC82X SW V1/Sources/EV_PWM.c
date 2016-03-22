@@ -113,6 +113,24 @@ void EV_PWM_SetDutyCycle(float duty) {
 	LPC_SCT->MATCHREL4 = 3000;
 }
 
+float EV_PWM_CheckProximityMaxCurrent(float proximityVoltage) {
+	float tolerance = 0.2;
+
+	if (proximityVoltage >= (2.57 - tolerance)) {
+		return EV_CURRENT_PWM_DUTY_6A;
+	} else if (proximityVoltage <= (2.57 + tolerance) && proximityVoltage >= (2.57 - tolerance)) {
+		return EV_CURRENT_PWM_DUTY_13A;
+	} else if (proximityVoltage <= (2.22 + tolerance) && proximityVoltage >= (2.22 - tolerance)) {
+		return EV_CURRENT_PWM_DUTY_16A;
+	} else if (proximityVoltage <= (1.82 + tolerance) && proximityVoltage >= (1.82 - tolerance)) {
+		return EV_CURRENT_PWM_DUTY_32A;
+	} else if (proximityVoltage <= (1.66 + tolerance) && proximityVoltage >= (1.66 - tolerance)) {
+		return EV_CURRENT_PWM_DUTY_60A;
+	} else {
+		return EV_CURRENT_PWM_DUTY_6A;
+	}
+}
+
 /****************************************************************************
                             End Of File
 ****************************************************************************/
