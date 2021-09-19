@@ -2,8 +2,6 @@
 
 Created by Luka Penger and Duško Cvijič
 
-Avant Car d.o.o.
-
 ## Description
 
 The EVCC module controls the power-supply of an electric vehicle (EV) while charging at a supply equipment (EVSE). The communication between EV and EVSE complies with IEC 61851-1 Mode 3.
